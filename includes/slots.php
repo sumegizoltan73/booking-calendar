@@ -11,78 +11,63 @@ function booking_calendar_generate_slots(
     global $wpdb;
 
     $table =
-        $wpdb->prefix . 'hotel_booking_slots';
-    $params =
-    $request->get_json_params();
-
-    $rooms = [];
-    $room_id = intval($params['room_id']);
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
 
     $start_date = new DateTime('today');
 
-    foreach ($rooms as $roomId) {
-        for ($d = 0; $d < 7; $d++) {
+    
+    for ($d = 0; $d < 7; $d++) {
 
-            $date = clone $start_date;
+        $date = clone $start_date;
 
-            $date->modify("+{$d} day");
+        $date->modify("+{$d} day");
 
-            for ($hour = 9; $hour < 17; $hour++) {
+        $slot_start = clone $date;
 
-                foreach ([0, 30] as $minute) {
+        $slot_start->setTime(
+            0,
+            0
+        );
 
-                    $slot_start = clone $date;
+        $slot_end = clone $slot_start;
 
-                    $slot_start->setTime(
-                        $hour,
-                        $minute
-                    );
+        $slot_end->modify('+1440 minutes');     // 1 day
 
-                    $slot_end = clone $slot_start;
+        $result = $wpdb->insert(
+            $table,
+            [
+                'slot_start_utc' =>
+                    $slot_start->format(
+                        'Y-m-d H:i:s'
+                    ),
 
-                    $slot_end->modify('+30 minutes');
+                'slot_end_utc' =>
+                    $slot_end->format(
+                        'Y-m-d H:i:s'
+                    ),
 
-                    $result = $wpdb->insert(
-                        $table,
-                        [
-                            'room_id' => $roomId,
+                'status' => 'FREE',
 
-                            'slot_start_utc' =>
-                                $slot_start->format(
-                                    'Y-m-d H:i:s'
-                                ),
+                //'max_bookings' => 1,
 
-                            'slot_end_utc' =>
-                                $slot_end->format(
-                                    'Y-m-d H:i:s'
-                                ),
+                'created_at' =>
+                    current_time(
+                        'mysql',
+                        true
+                    ),
 
-                            'status' => 'FREE',
+                'updated_at' =>
+                    current_time(
+                        'mysql',
+                        true
+                    ),
+            ]
+        );
 
-                            'max_bookings' => 1,
-
-                            'created_at' =>
-                                current_time(
-                                    'mysql',
-                                    true
-                                ),
-
-                            'updated_at' =>
-                                current_time(
-                                    'mysql',
-                                    true
-                                ),
-                        ]
-                    );
-
-                    if ($result === false) {
-                        error_log(
-                            'INSERT ERROR: ' . $wpdb->last_error
-                        );
-                    }
-                    
-                }
-            }
+        if ($result === false) {
+            error_log(
+                'INSERT ERROR: ' . $wpdb->last_error
+            );
         }
     }
     return [
@@ -117,103 +102,77 @@ function booking_calendar_generate_unique_slots(
     $diff = date_diff($start_date, $end_date);
     $days = intval($diff->format("%a"));
 
-    $start_time = explode(":", $params['from']);
-    $end_time = explode(":", $params['to']);
-    $start_hour = intval($start_time[0]);
-    $end_hour = intval($end_time[0]);
-
     $duration = intval($params['duration']);
 
-    foreach ($rooms as $roomId) {
-        // Delete all FREE slots within the interval
+    // Delete all FREE slots within the interval
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                status = 'FREE'
+
+                AND slot_start_utc >= %s
+
+                AND slot_start_utc <= %s
+            ",
+            $start_date->format('Y-m-d 00:00:00'),
+            $end_date->format('Y-m-d 23:59:59')
+        )
+    );
+
+    // Create new slots with FREE state
+    for ($d = 0; $d <= $days; $d++) {
+
+        $date = clone $start_date;
+
+        $date->modify("+{$d} day");
+
+        $slot_start = clone $date;
+
+        $slot_start->setTime(
+            0,
+            0
+        );
+
+        $slot_end = clone $slot_start;
+
+        $slot_end->modify('+' . $duration . ' minutes');
+
         $wpdb->query(
             $wpdb->prepare(
                 "
-                DELETE FROM {$table}
+                INSERT IGNORE INTO {$table}
+                (
+                    slot_start_utc,
+                    slot_end_utc,
+                    status,
+                    created_at,
+                    updated_at
+                )
 
-                WHERE
-                    room_id = %d
-
-                    AND status = 'FREE'
-
-                    AND slot_start_utc >= %s
-
-                    AND slot_start_utc <= %s
+                VALUES (
+                    %s,
+                    %s,
+                    %s,
+                    NOW(),
+                    NOW()
+                )
                 ",
-                $roomId,
-                $start_date->format('Y-m-d 00:00:00'),
-                $end_date->format('Y-m-d 23:59:59')
+                [
+                    $slot_start->format(
+                        'Y-m-d H:i:s'
+                    ),
+                    $slot_end->format(
+                        'Y-m-d H:i:s'
+                    ),
+                    'FREE'
+                ]
             )
         );
-
-        // Create new slots with FREE state
-        for ($d = 0; $d <= $days; $d++) {
-
-            $date = clone $start_date;
-
-            $date->modify("+{$d} day");
-
-            for ($hour = $start_hour; $hour < $end_hour; $hour++) {
-
-                for (
-                    $minute = 0;
-                    $minute < 60;
-                    $minute += $duration
-                ) {
-
-                    $slot_start = clone $date;
-
-                    $slot_start->setTime(
-                        $hour,
-                        $minute
-                    );
-
-                    $slot_end = clone $slot_start;
-
-                    $slot_end->modify('+' . $duration . ' minutes');
-
-                    $wpdb->query(
-                        $wpdb->prepare(
-                            "
-                            INSERT IGNORE INTO {$table}
-                            (
-                                agent_id,
-                                slot_start_utc,
-                                slot_end_utc,
-                                status,
-                                max_bookings,
-                                created_at,
-                                updated_at
-                            )
-
-                            VALUES (
-                                %d,
-                                %s,
-                                %s,
-                                %s,
-                                %d,
-                                NOW(),
-                                NOW()
-                            )
-                            ",
-                            [
-                                $roomId,
-                                $slot_start->format(
-                                    'Y-m-d H:i:s'
-                                ),
-                                $slot_end->format(
-                                    'Y-m-d H:i:s'
-                                ),
-                                'FREE',
-                                1
-                            ]
-                        )
-                    );
-                    
-                }
-            }
-        }
     }
+    
     return [
         'success' => true,
         'message' => 'Unique Slot generation completed'
@@ -252,58 +211,41 @@ function booking_calendar_calendar_events(
     global $wpdb;
     $table =
         $wpdb->prefix . 'hotel_booking_calendar_slots';
-    $usertable =
-        $wpdb->prefix . 'users';
     $table_bookings =
         $wpdb->prefix . 'hotel_booking_bookings';
 
-    $agent_id = intval(
+    $room_id = intval(
         $request->get_param(
-            'agent_id'
+            'room_id'
         )
     );
 
     $result = $wpdb->get_results(
-        $wpdb->prepare(
-            "
-            SELECT
-                s.*,
-                u.display_name,
-                CASE WHEN b.slot_id IS NOT NULL AND s.status = 'FREE' THEN 'BOOKED' ELSE s.status END as state
+        "
+        SELECT
+            s.*,
+            CASE WHEN b.slot_id IS NOT NULL AND s.status = 'FREE' THEN 'BOOKED' ELSE s.status END as state
 
-            FROM
-                {$table} s
+        FROM
+            {$table} s
 
-            JOIN
-                {$usertable} u
-                ON u.ID = s.agent_id
-            LEFT JOIN
-                $table_bookings b 
-                ON b.slot_id = s.id
+        LEFT JOIN
+            $table_bookings b 
+            ON b.slot_id = s.id
 
-            WHERE
-                s.slot_start_utc >= CURDATE()
+        WHERE
+            s.slot_start_utc >= CURDATE()
 
-                AND (
-                    %d = 0
-                    OR
-                    s.agent_id = %d
-                )
-
-            ORDER BY
-                s.slot_start_utc,
-                s.agent_id
-            ",
-            $agent_id,
-            $agent_id
-        )
+        ORDER BY
+            s.slot_start_utc
+        "
     );
     $events = [];
 
     foreach ($result as $row) {
 
         $events[] = [
-            'title' => booking_calendar_get_monogram($row->display_name),
+            'title' => '',
 
             'start' => $row->slot_start_utc,
 
@@ -315,8 +257,7 @@ function booking_calendar_calendar_events(
 
             'extendedProps' => [
                 'slot_id' => $row->id,
-                'status' => $row->state,
-                'name' => $row->display_name
+                'status' => $row->state
             ]
         ];
     }

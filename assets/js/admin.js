@@ -110,7 +110,6 @@ async function getBookingCalendarBookings(slot_id) {
 
 async function generateBookingCalendarSlots() {
     const url = hotelBooking.restUrl + 'generate-slots';
-    const roomId = document.getElementById('room-id').value;
     const response = await fetch(
         url,
         {
@@ -119,11 +118,7 @@ async function generateBookingCalendarSlots() {
             headers: {
                 'Content-Type': 'application/json',
                 'X-WP-Nonce': hotelBooking.nonce
-            },
-
-            body: JSON.stringify({
-                room_id: roomId
-            })
+            }
         }
     );
 
@@ -134,11 +129,8 @@ async function generateBookingCalendarSlots() {
 
 async function generateUniqueBookingCalendarSlots(room, 
     range,
-    from,
-    to,
     duration) {
     const url = hotelBooking.restUrl + 'generate-unique-slots';
-    const roomId = document.getElementById('room-id').value;
     const response = await fetch(
         url,
         {
@@ -152,8 +144,6 @@ async function generateUniqueBookingCalendarSlots(room,
             body: JSON.stringify({
                 room_id: room, 
                 range,
-                from,
-                to,
                 duration
             })
         }
@@ -172,23 +162,11 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
         title: 'Slot generálás',
 
         html: `
-            <select id="agent-id-for-slot-generate">
+            <select id="room-id-for-slot-generate">
                 ${room_select_html}
             </select>
             <input
                 id="slot-date-range"
-                class="swal2-input"
-            />
-
-            <input
-                id="time-from"
-                type="time"
-                class="swal2-input"
-            />
-
-            <input
-                id="time-to"
-                type="time"
                 class="swal2-input"
             />
 
@@ -202,16 +180,12 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
         preConfirm: () => {
             const room = document.getElementById("room-id-for-slot-generate").value;
             const range = document.getElementById("slot-date-range").value;
-            const from = document.getElementById("time-from").value;
-            const to = document.getElementById("time-to").value;
             const duration = document.getElementById("slot-duration").value;
 
-            const isValid = (range && from && to && from.length === 5 && to.length === 5);
+            const isValid = (!!range);
             return [
                 room, 
                 range,
-                from,
-                to,
                 duration,
                 isValid
             ]
@@ -227,13 +201,11 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
         }
     });
 
-    const [room, range, from, to, duration, isValid] = formValues;
+    const [room, range, duration, isValid] = formValues;
     if (isValid) { 
         // generate
         generateUniqueBookingCalendarSlots(room, 
             range,
-            from,
-            to,
             duration);
     }
     else {
