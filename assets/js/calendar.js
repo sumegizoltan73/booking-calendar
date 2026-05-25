@@ -12,10 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
               hour12: false
           },
           events: async function(fetchInfo, successCallback) {
-            const agentId = 0;
+            const roomId = 0;
 
               const response = await fetch(
-                  agentBooking.restUrl + 'calendar-events?agent_id=' + agentId
+                  hotelBooking.restUrl + 'calendar-events?room_id=' + roomId
               );
 
               const data = await response.json();
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         calendar.render();
-        window.agentBookingCalendar = calendar;
+        window.hotelBookingCalendar = calendar;
       });
 
 function getSlotColor(status) {

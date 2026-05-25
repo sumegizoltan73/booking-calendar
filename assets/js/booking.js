@@ -86,7 +86,7 @@ async function fireBooking(id,
     notes) {
 
     const url =
-        agentBooking.restUrl +
+        hotelBooking.restUrl +
         'booking-slot';
 
     const response = await fetch(
@@ -98,7 +98,7 @@ async function fireBooking(id,
                 'Content-Type': 'application/json',
 
                 'X-WP-Nonce':
-                    agentBooking.nonce
+                    hotelBooking.nonce
             },
 
             body: JSON.stringify({
@@ -111,7 +111,7 @@ async function fireBooking(id,
         }
     );
 
-    window.agentBookingCalendar.refetchEvents();
+    window.hotelBookingCalendar.refetchEvents();
     const data = await response.json();
 
     console.log(data);

@@ -4,41 +4,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-function agent_booking_generate_slots(
+function booking_calendar_generate_slots(
     WP_REST_Request $request
 ) {
 
     global $wpdb;
 
     $table =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_slots';
     $params =
     $request->get_json_params();
 
-    $agents = [];
-    $agent_id = intval($params['agent_id']);
-    if ($agent_id == 0 && !class_exists('Groups_User')) {
-        $agents[] = 1;
-    }
-    if ($agent_id == 0 && class_exists('Groups_User')) {
-        $users = get_users();
-        foreach ($users as $user) {
-            $group_user = new Groups_User($user->ID);
-            foreach ($group_user->__get('groups') as $group) {
-                if ($group->name == 'booking_agent') {
-                    $agents[] = $user->ID;
-                    break;
-                }
-            }
-        }
-    }
-    else {
-        $agents[] = $agent_id;
-    }
+    $rooms = [];
+    $room_id = intval($params['room_id']);
 
     $start_date = new DateTime('today');
 
-    foreach ($agents as $agentId) {
+    foreach ($rooms as $roomId) {
         for ($d = 0; $d < 7; $d++) {
 
             $date = clone $start_date;
@@ -63,7 +45,7 @@ function agent_booking_generate_slots(
                     $result = $wpdb->insert(
                         $table,
                         [
-                            'agent_id' => $agentId,
+                            'room_id' => $roomId,
 
                             'slot_start_utc' =>
                                 $slot_start->format(
@@ -109,36 +91,18 @@ function agent_booking_generate_slots(
     ];
 }
 
-function agent_booking_generate_unique_slots(
+function booking_calendar_generate_unique_slots(
     WP_REST_Request $request
 ) {
 
     global $wpdb;
 
     $table =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
     $params = $request->get_json_params();
 
-    $agents = [];
-    $agent_id = intval($params['agent_id']);
-    if ($agent_id == 0 && !class_exists('Groups_User')) {
-        $agents[] = 1;
-    }
-    if ($agent_id == 0 && class_exists('Groups_User')) {
-        $users = get_users();
-        foreach ($users as $user) {
-            $group_user = new Groups_User($user->ID);
-            foreach ($group_user->__get('groups') as $group) {
-                if ($group->name == 'booking_agent') {
-                    $agents[] = $user->ID;
-                    break;
-                }
-            }
-        }
-    }
-    else {
-        $agents[] = $agent_id;
-    }
+    $rooms = [];
+    $room_id = intval($params['room_id']);
 
     $range = explode(" - ", $params['range']);
     
@@ -160,7 +124,7 @@ function agent_booking_generate_unique_slots(
 
     $duration = intval($params['duration']);
 
-    foreach ($agents as $agentId) {
+    foreach ($rooms as $roomId) {
         // Delete all FREE slots within the interval
         $wpdb->query(
             $wpdb->prepare(
@@ -168,7 +132,7 @@ function agent_booking_generate_unique_slots(
                 DELETE FROM {$table}
 
                 WHERE
-                    agent_id = %d
+                    room_id = %d
 
                     AND status = 'FREE'
 
@@ -176,7 +140,7 @@ function agent_booking_generate_unique_slots(
 
                     AND slot_start_utc <= %s
                 ",
-                $agentId,
+                $roomId,
                 $start_date->format('Y-m-d 00:00:00'),
                 $end_date->format('Y-m-d 23:59:59')
             )
@@ -233,7 +197,7 @@ function agent_booking_generate_unique_slots(
                             )
                             ",
                             [
-                                $agentId,
+                                $roomId,
                                 $slot_start->format(
                                     'Y-m-d H:i:s'
                                 ),
@@ -255,7 +219,7 @@ function agent_booking_generate_unique_slots(
         'message' => 'Unique Slot generation completed'
     ];
 }
-function agent_booking_get_slot_color(
+function booking_calendar_get_slot_color(
     $status
 ) {
 
@@ -282,16 +246,16 @@ function get_monogram(
     }
     return $monogram;
 }
-function agent_booking_calendar_events(
+function booking_calendar_calendar_events(
     WP_REST_Request $request
 ) {
     global $wpdb;
     $table =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
     $usertable =
         $wpdb->prefix . 'users';
     $table_bookings =
-        $wpdb->prefix . 'agent_booking_bookings';
+        $wpdb->prefix . 'hotel_booking_bookings';
 
     $agent_id = intval(
         $request->get_param(
@@ -345,7 +309,7 @@ function agent_booking_calendar_events(
 
             'end' => $row->slot_end_utc,
 
-            'color' => agent_booking_get_slot_color(
+            'color' => booking_calendar_get_slot_color(
                 $row->state
             ),
 
@@ -359,14 +323,14 @@ function agent_booking_calendar_events(
 
     return $events;
 }
-function agent_booking_update_slot_status(
+function booking_calendar_update_slot_status(
     WP_REST_Request $request
 ) {
 
     global $wpdb;
 
     $table =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
     $params =
         $request->get_json_params();
 
@@ -400,18 +364,18 @@ function agent_booking_update_slot_status(
     }
 }
 
-function agent_booking_slot(
+function booking_calendar_slot(
     WP_REST_Request $request
 ) {
 
     global $wpdb;
 
     $table =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
     $table_bookings =
-        $wpdb->prefix . 'agent_booking_bookings';
+        $wpdb->prefix . 'hotel_booking_bookings';
     $table_notes =
-        $wpdb->prefix . 'agent_booking_notes';
+        $wpdb->prefix . 'hotel_booking_notes';
     $params =
         $request->get_json_params();
 
@@ -473,16 +437,16 @@ function agent_booking_slot(
     ];
 }
 
-function agent_booking_slot_notes(
+function booking_calendar_slot_notes(
     WP_REST_Request $request
 ) {
     global $wpdb;
     $table_slots =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
     $table_bookings =
-        $wpdb->prefix . 'agent_booking_bookings';
+        $wpdb->prefix . 'hotel_booking_bookings';
     $table_notes =
-        $wpdb->prefix . 'agent_booking_notes';
+        $wpdb->prefix . 'hotel_booking_notes';
     $usertable =
         $wpdb->prefix . 'users';
 
@@ -552,14 +516,14 @@ function agent_booking_slot_notes(
     return $notes;
 }
 
-function agent_booking_slot_bookings(
+function booking_calendar_slot_bookings(
     WP_REST_Request $request
 ) {
     global $wpdb;
     $table_slots =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
     $table_bookings =
-        $wpdb->prefix . 'agent_booking_bookings';
+        $wpdb->prefix . 'hotel_booking_bookings';
     $usertable =
         $wpdb->prefix . 'users';
 

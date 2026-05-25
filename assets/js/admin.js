@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
               hour12: false
           },
           events: async function(fetchInfo, successCallback) {
-            const agentId = document.getElementById('agent-id').value;
+            const roomId = document.getElementById('room-id').value;
 
               const response = await fetch(
-                  agentBooking.restUrl + 'calendar-events?agent_id=' + agentId
+                  hotelBooking.restUrl + 'calendar-events?room_id=' + roomId
               );
 
               const data = await response.json();
@@ -87,12 +87,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         calendar.render();
-        window.agentBookingCalendar = calendar;
+        window.hotelBookingCalendar = calendar;
       });
 
 async function getNotes(slot_id) {
     const response = await fetch(
-        agentBooking.restUrl + 'calendar-slot-notes?slot_id=' + slot_id
+        hotelBooking.restUrl + 'calendar-slot-notes?slot_id=' + slot_id
     );
 
     const data = await response.json();
@@ -101,7 +101,7 @@ async function getNotes(slot_id) {
 
 async function getBookings(slot_id) {
     const response = await fetch(
-        agentBooking.restUrl + 'calendar-slot-bookings?slot_id=' + slot_id
+        hotelBooking.restUrl + 'calendar-slot-bookings?slot_id=' + slot_id
     );
 
     const data = await response.json();
@@ -109,8 +109,8 @@ async function getBookings(slot_id) {
 } 
 
 async function generateSlots() {
-    const url = agentBooking.restUrl + 'generate-slots';
-    const agentId = document.getElementById('agent-id').value;
+    const url = hotelBooking.restUrl + 'generate-slots';
+    const roomId = document.getElementById('room-id').value;
     const response = await fetch(
         url,
         {
@@ -118,27 +118,27 @@ async function generateSlots() {
 
             headers: {
                 'Content-Type': 'application/json',
-                'X-WP-Nonce': agentBooking.nonce
+                'X-WP-Nonce': hotelBooking.nonce
             },
 
             body: JSON.stringify({
-                agent_id: agentId
+                room_id: roomId
             })
         }
     );
 
     const data = await response.json();
-    window.agentBookingCalendar.refetchEvents();
+    window.hotelBookingCalendar.refetchEvents();
     console.log(data);
 }
 
-async function generateUniqueSlots(agent, 
+async function generateUniqueSlots(room, 
     range,
     from,
     to,
     duration) {
-    const url = agentBooking.restUrl + 'generate-unique-slots';
-    const agentId = document.getElementById('agent-id').value;
+    const url = hotelBooking.restUrl + 'generate-unique-slots';
+    const roomId = document.getElementById('room-id').value;
     const response = await fetch(
         url,
         {
@@ -146,11 +146,11 @@ async function generateUniqueSlots(agent,
 
             headers: {
                 'Content-Type': 'application/json',
-                'X-WP-Nonce': agentBooking.nonce
+                'X-WP-Nonce': hotelBooking.nonce
             },
 
             body: JSON.stringify({
-                agent_id: agent, 
+                room_id: room, 
                 range,
                 from,
                 to,
@@ -160,12 +160,12 @@ async function generateUniqueSlots(agent,
     );
 
     const data = await response.json();
-    window.agentBookingCalendar.refetchEvents();
+    window.hotelBookingCalendar.refetchEvents();
     console.log(data);
 }
 
 async function generateUniqueSlotsPopUp() {
-    const agent_select_html = document.getElementById('agent-id').innerHTML;
+    const room_select_html = document.getElementById('room-id').innerHTML;
 
     const { value: formValues } = await Swal.fire({
 
@@ -173,7 +173,7 @@ async function generateUniqueSlotsPopUp() {
 
         html: `
             <select id="agent-id-for-slot-generate">
-                ${agent_select_html}
+                ${room_select_html}
             </select>
             <input
                 id="slot-date-range"
@@ -193,16 +193,14 @@ async function generateUniqueSlotsPopUp() {
             />
 
             <select id="slot-duration">
-                <option value="15">15 perc</option>
-                <option value="30">30 perc</option>
-                <option value="60">60 perc</option>
+                <option value="1440">24 óra</option>
             </select>
         `,
 
         showCancelButton: true,
         allowEscapeKey: true,
         preConfirm: () => {
-            const agent = document.getElementById("agent-id-for-slot-generate").value;
+            const room = document.getElementById("room-id-for-slot-generate").value;
             const range = document.getElementById("slot-date-range").value;
             const from = document.getElementById("time-from").value;
             const to = document.getElementById("time-to").value;
@@ -210,7 +208,7 @@ async function generateUniqueSlotsPopUp() {
 
             const isValid = (range && from && to && from.length === 5 && to.length === 5);
             return [
-                agent, 
+                room, 
                 range,
                 from,
                 to,
@@ -229,10 +227,10 @@ async function generateUniqueSlotsPopUp() {
         }
     });
 
-    const [agent, range, from, to, duration, isValid] = formValues;
+    const [room, range, from, to, duration, isValid] = formValues;
     if (isValid) { 
         // generate
-        generateUniqueSlots(agent, 
+        generateUniqueSlots(room, 
             range,
             from,
             to,
@@ -250,7 +248,7 @@ async function generateUniqueSlotsPopUp() {
 async function updateSlot(id, status) {
 
     const url =
-        agentBooking.restUrl +
+        hotelBooking.restUrl +
         'update-slot-status';
 
     const response = await fetch(
@@ -262,7 +260,7 @@ async function updateSlot(id, status) {
                 'Content-Type': 'application/json',
 
                 'X-WP-Nonce':
-                    agentBooking.nonce
+                    hotelBooking.nonce
             },
 
             body: JSON.stringify({
@@ -272,7 +270,7 @@ async function updateSlot(id, status) {
         }
     );
 
-    window.agentBookingCalendar.refetchEvents();
+    window.hotelBookingCalendar.refetchEvents();
     document.querySelector("button.swal2-confirm").click();
     const data = await response.json();
 
@@ -295,5 +293,5 @@ function getSlotColor(status) {
 }
 
 function refreshCalendar() {
-    window.agentBookingCalendar.refetchEvents();
+    window.hotelBookingCalendar.refetchEvents();
 }

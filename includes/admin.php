@@ -6,46 +6,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action(
     'admin_menu',
-    'agent_booking_admin_menu'
+    'booking_calendar_admin_menu'
 );
 
-function agent_booking_admin_menu() {
+function booking_calendar_admin_menu() {
 
     add_menu_page(
-        'Agent Booking',
-        'Agent Booking',
+        'Hotel Booking',
+        'Hotel Booking',
         'manage_options',
-        'agent-booking',
-        'agent_booking_admin_page',
+        'booking-calendar',
+        'booking_calendar_admin_page',
         'dashicons-calendar-alt',
         30
     );
 }
 
-function agent_booking_admin_page() {
+function booking_calendar_admin_page() {
 
     $admin_notice = "";
-    if (!class_exists('Groups_User')) {
-        $admin_notice = "Groups plugin required";
-    }
 
-    $users = get_users();
-    $agents = [];
-    foreach ($users as $user) {
-        $group_user = new Groups_User($user->ID);
-        foreach ($group_user->__get('groups') as $group) {
-            if ($group->name == 'booking_agent') {
-                $agents[] = $user;
-                break;
-            }
-        }
-    }
+    $rooms = [];
 
     ?>
 
     <div class="wrap">
 
-        <h1>Agent Booking</h1>
+        <h1>Hotel Booking</h1>
         <h2>
             <?php if ($admin_notice != "") {
                     echo esc_html($admin_notice);
@@ -56,20 +43,20 @@ function agent_booking_admin_page() {
             Slotok generálása
         </button>
 
-        <select id="agent-id" onchange="refreshCalendar()">
+        <select id="room-id" onchange="refreshCalendar()">
             <option
                 value="0"
             >
-                Minden ügynök
+                Minden szoba
             </option>
-            <?php foreach ($agents as $agent): ?>
+            <?php foreach ($rooms as $room): ?>
 
                 <option
-                    value="<?php echo esc_attr($agent->ID); ?>"
+                    value="<?php echo esc_attr($room->ID); ?>"
                 >
                     <?php
                     echo esc_html(
-                        $agent->display_name
+                        $room->display_name
                     );
                     ?>
                 </option>
@@ -81,7 +68,7 @@ function agent_booking_admin_page() {
             Egyedi Slotok generálása
         </button>
 
-        <div id="agent-booking-admin-calendar"></div>
+        <div id="booking-calendar-admin-calendar"></div>
 
     </div>
 
@@ -90,12 +77,12 @@ function agent_booking_admin_page() {
 
 add_action(
     'admin_enqueue_scripts',
-    'agent_booking_admin_assets'
+    'booking_calendar_admin_assets'
 );
 
-function agent_booking_admin_assets($hook) {
+function booking_calendar_admin_assets($hook) {
 
-    if ($hook !== 'toplevel_page_agent-booking') {
+    if ($hook !== 'toplevel_page_booking-calendar') {
         return;
     }
 
@@ -152,7 +139,7 @@ function agent_booking_admin_assets($hook) {
     );
 
     wp_enqueue_script(
-        'agent-booking-admin',
+        'booking-calendar-admin',
         plugin_dir_url(__FILE__) . '../assets/js/admin.js?nocache=' . date("Ymd_His"),
         ['fullcalendar'],
         filemtime(
@@ -163,12 +150,12 @@ function agent_booking_admin_assets($hook) {
     );
 
     wp_localize_script(
-        'agent-booking-admin',
-        'agentBooking',
+        'booking-calendar-admin',
+        'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),
             'restUrl' => rest_url(
-                'agent-booking/v1/'
+                'booking-calendar/v1/'
             )
         ]
     );

@@ -4,38 +4,38 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('AGENT_BOOKING_DB_VERSION', '1.9');
+define('BOOKING_CALENDAR_DB_VERSION', '2.0');
 
-function agent_booking_install() {
+function booking_calendar_install() {
 
-    agent_booking_create_roles();
+    booking_calendar_create_roles();
 
-    agent_booking_create_tables();
+    booking_calendar_create_tables();
 }
 
-function agent_booking_update_db_check() {
+function booking_calendar_update_db_check() {
 
     $installed_version =
         get_option(
-            'agent_booking_db_version'
+            'booking_calendar_db_version'
         );
 
     if (
         $installed_version !==
-        AGENT_BOOKING_DB_VERSION
+        BOOKING_CALENDAR_DB_VERSION
     ) {
 
-        agent_booking_install();
+        booking_calendar_install();
     }
 }
-function agent_booking_create_tables() {
+function booking_calendar_create_tables() {
 
     global $wpdb;
 
     $charset_collate = $wpdb->get_charset_collate();
 
     $table_name =
-        $wpdb->prefix . 'agent_booking_slots';
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
 
 
     $sql = "
@@ -43,7 +43,7 @@ function agent_booking_create_tables() {
 
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
-        agent_id BIGINT UNSIGNED NOT NULL,
+        room_id BIGINT UNSIGNED NOT NULL,
 
         slot_start_utc DATETIME NOT NULL,
         slot_end_utc DATETIME NOT NULL,
@@ -57,8 +57,8 @@ function agent_booking_create_tables() {
 
         PRIMARY KEY  (id),
 
-        UNIQUE KEY idx_agent_date (
-            agent_id,
+        UNIQUE KEY idx_room_date (
+            room_id,
             slot_start_utc
         ),
 
@@ -71,7 +71,7 @@ function agent_booking_create_tables() {
 
 
 		$table_name3 =
-        $wpdb->prefix . 'agent_weekly_rules';
+        $wpdb->prefix . 'hotel_weekly_rules';
 
 		/**
 		 * Weekday
@@ -84,7 +84,7 @@ function agent_booking_create_tables() {
 		CREATE TABLE $table_name3 (
 				id BIGINT UNSIGNED AUTO_INCREMENT,
 
-				agent_id BIGINT UNSIGNED NOT NULL,
+				room_id BIGINT UNSIGNED NOT NULL,
 
 				weekday TINYINT NOT NULL,
 				
@@ -100,20 +100,20 @@ function agent_booking_create_tables() {
 
 				PRIMARY KEY  (id),
 
-				KEY idx_agent_weekday (
-						agent_id,
+				KEY idx_room_weekday (
+						room_id,
 						weekday
 				)
 		) $charset_collate ;
 		";
 
 		$table_name4 =
-        $wpdb->prefix . 'agent_days_off';
+        $wpdb->prefix . 'hotel_days_off';
 		$sql4 = "
 		CREATE TABLE $table_name4 (
 				id BIGINT UNSIGNED AUTO_INCREMENT,
 
-				agent_id BIGINT UNSIGNED NOT NULL,
+				room_id BIGINT UNSIGNED NOT NULL,
 
 				off_start_utc DATETIME NOT NULL,
 				off_end_utc DATETIME NOT NULL,
@@ -124,15 +124,15 @@ function agent_booking_create_tables() {
 
 				PRIMARY KEY  (id),
 
-				KEY idx_agent_off (
-						agent_id,
+				KEY idx_room_off (
+						room_id,
 						off_start_utc
 				)
 		) $charset_collate ;
 		";
 
 		$table_name7 =
-        $wpdb->prefix . 'agent_booking_bookings';
+        $wpdb->prefix . 'hotel_booking_bookings';
 		$sql7 = "
     CREATE TABLE $table_name7 (
 
@@ -192,7 +192,7 @@ function agent_booking_create_tables() {
 					ADMIN
 		*/
 		$table_name6 =
-        $wpdb->prefix . 'agent_booking_notes';
+        $wpdb->prefix . 'hotel_booking_notes';
 		$sql6 = "
     CREATE TABLE $table_name6 (
 				id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -259,7 +259,7 @@ function agent_booking_create_tables() {
 		}
 
     update_option(
-        'agent_booking_db_version',
-        AGENT_BOOKING_DB_VERSION
+        'booking_calendar_db_version',
+        BOOKING_CALENDAR_DB_VERSION
     );
 }

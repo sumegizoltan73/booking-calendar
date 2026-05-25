@@ -7,21 +7,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Közös render függvény
  */
-function agent_booking_plugin_render( $atts = [] ) {
+function booking_calendar_plugin_render( $atts = [] ) {
 
-    agent_booking_enqueue_assets();
+    booking_calendar_enqueue_assets();
 
     ob_start();
     ?>
 
-    <div id="agent-booking-calendar"></div>
+    <div id="booking-calendar-calendar"></div>
 
     <?php
 
     return ob_get_clean();
 }
 
-function agent_booking_enqueue_assets() {
+function booking_calendar_enqueue_assets() {
 
     static $loaded = false;
 
@@ -88,7 +88,7 @@ function agent_booking_enqueue_assets() {
     );
 
     wp_enqueue_script(
-        'agent-booking-js',
+        'booking-calendar-js',
         plugin_dir_url(__FILE__) . '../assets/js/booking.js?nocache=' . date("Ymd_His"),
         ['agent-calendar-js'],
         filemtime(
@@ -99,29 +99,29 @@ function agent_booking_enqueue_assets() {
     );
 
     wp_enqueue_style(
-        'agent-booking-style',
+        'booking-calendar-style',
         plugin_dir_url(__FILE__) . '../assets/css/style.css?nocache=' . date("Ymd_His"),
         [],
         '1.0'
     );
 
     wp_localize_script(
-        'agent-booking-js',
-        'agentBooking',
+        'booking-calendar-js',
+        'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),
             'restUrl' => rest_url(
-                'agent-booking/v1/'
+                'booking-calendar/v1/'
             )
         ]
     );
     wp_localize_script(
         'agent-calendar-js',
-        'agentBooking',
+        'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),
             'restUrl' => rest_url(
-                'agent-booking/v1/'
+                'booking-calendar/v1/'
             )
         ]
     );
@@ -130,11 +130,11 @@ function agent_booking_enqueue_assets() {
 /**
  * Shortcode regisztráció
  */
-function agent_booking_plugin_shortcode( $atts ) {
-    return agent_booking_plugin_render( $atts );
+function booking_calendar_plugin_shortcode( $atts ) {
+    return booking_calendar_plugin_render( $atts );
 }
 
 add_shortcode(
-    'agent_booking_calendar',
-    'agent_booking_plugin_shortcode'
+    'booking_calendar',
+    'booking_calendar_plugin_shortcode'
 );

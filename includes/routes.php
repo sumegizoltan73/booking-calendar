@@ -6,18 +6,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action(
     'rest_api_init',
-    'agent_booking_register_routes'
+    'booking_calendar_register_routes'
 );
 
-function agent_booking_register_routes() {
+function booking_calendar_register_routes() {
 
     register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/generate-slots',
         [
             'methods'  => 'POST',
 
-            'callback' => 'agent_booking_generate_slots',
+            'callback' => 'booking_calendar_generate_slots',
 
             'permission_callback' => function () {
 
@@ -29,12 +29,12 @@ function agent_booking_register_routes() {
     );
 
     register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/generate-unique-slots',
         [
             'methods'  => 'POST',
 
-            'callback' => 'agent_booking_generate_unique_slots',
+            'callback' => 'booking_calendar_generate_unique_slots',
 
             'permission_callback' => function () {
 
@@ -46,23 +46,23 @@ function agent_booking_register_routes() {
     );
 
     register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/calendar-events',
         [
             'methods'  => 'GET',
 
-            'callback' => 'agent_booking_calendar_events',
+            'callback' => 'booking_calendar_calendar_events',
 
         ]
     );
     
     register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/update-slot-status',
         [
             'methods'  => 'POST',
 
-            'callback' => 'agent_booking_update_slot_status',
+            'callback' => 'booking_calendar_update_slot_status',
 
             'permission_callback' => function () {
 
@@ -74,12 +74,12 @@ function agent_booking_register_routes() {
     );
 
     register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/booking-slot',
         [
             'methods'  => 'POST',
 
-            'callback' => 'agent_booking_slot',
+            'callback' => 'booking_calendar_slot',
 
             'permission_callback' => function () {
 
@@ -89,22 +89,22 @@ function agent_booking_register_routes() {
     );
 
      register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/calendar-slot-notes',
         [
             'methods'  => 'GET',
 
-            'callback' => 'agent_booking_slot_notes'
+            'callback' => 'booking_calendar_slot_notes'
         ]
     );
 
      register_rest_route(
-        'agent-booking/v1',
+        'booking-calendar/v1',
         '/calendar-slot-bookings',
         [
             'methods'  => 'GET',
 
-            'callback' => 'agent_booking_slot_bookings'
+            'callback' => 'booking_calendar_slot_bookings'
         ]
     );
 }

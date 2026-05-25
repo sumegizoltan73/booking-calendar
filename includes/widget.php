@@ -4,17 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class AgentBookingPluginWidget extends WP_Widget {
+class BookingCalendarPluginWidget extends WP_Widget {
 
     public function __construct() {
 
         parent::__construct(
-            'agent_booking_plugin_widget',
-            __( 'Agent Booking Calendar', 'agent-booking-plugin' ),
+            'booking_calendar_plugin_widget',
+            __( 'Hotel Booking Calendar', 'booking-calendar-plugin' ),
             [
                 'description' => __(
-                    'Agent Booking plugin widget',
-                    'agent-booking-plugin'
+                    'Hotel Booking Calendar plugin widget',
+                    'booking-calendar-plugin'
                 ),
             ]
         );
@@ -24,7 +24,7 @@ class AgentBookingPluginWidget extends WP_Widget {
 
         echo $args['before_widget'];
 
-        echo agent_booking_plugin_render();
+        echo booking_calendar_plugin_render();
 
         echo $args['after_widget'];
     }
@@ -34,7 +34,7 @@ class AgentBookingPluginWidget extends WP_Widget {
         echo '<p>' .
             esc_html__(
                 'Ez a widget a shortcode renderelést használja.',
-                'agent-booking-plugin'
+                'booking-calendar-plugin'
             ) .
         '</p>';
     }
@@ -43,6 +43,6 @@ class AgentBookingPluginWidget extends WP_Widget {
 add_action(
     'widgets_init',
     function () {
-        register_widget( 'AgentBookingPluginWidget' );
+        register_widget( 'BookingCalendarPluginWidget' );
     }
 );

@@ -17,7 +17,7 @@
  */
 
 
-add_action( 'plugins_loaded', 'agent_booking_plugin_load_textdomain' );
+add_action( 'plugins_loaded', 'booking_calendar_plugin_load_textdomain' );
 
 require_once __DIR__ . '/includes/shortcode.php';
 require_once __DIR__ . '/includes/widget.php';
@@ -35,11 +35,11 @@ require_once __DIR__ . '/includes/cron.php';
  */
 register_activation_hook(
     __FILE__,
-    'agent_booking_install'
+    'booking_calendar_install'
 );
 add_action(
     'plugins_loaded',
-    'agent_booking_update_db_check'
+    'booking_calendar_update_db_check'
 );
 
 /**
@@ -58,9 +58,9 @@ function wporg_settings_init() {
 /**
  * languages
  */
-function agent_booking_plugin_load_textdomain() {
+function booking_calendar_plugin_load_textdomain() {
     load_plugin_textdomain(
-        'agent-booking-plugin',
+        'booking_calendar',
         false,
         dirname( plugin_basename( __FILE__ ) ) . '/languages'
     );
