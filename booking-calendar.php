@@ -3,7 +3,7 @@
  * Plugin Name:       Booking Calendar Plugin
  * Plugin URI:        https://github.com/sumegizoltan73/booking-calendar
  * Description:       Hotel booking calendar - WordPress plugin.
- * Version:           0.1.6
+ * Version:           0.1.7
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Zoltan Peter Sumegi & ChatGPT
@@ -25,8 +25,8 @@ require_once __DIR__ . '/includes/slots.php';
 require_once __DIR__ . '/includes/routes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/roles.php';
 require_once plugin_dir_path(__FILE__) . 'includes/db.php';
+require_once __DIR__ . '/includes/rooms.php';
 require_once __DIR__ . '/includes/admin.php';
-require_once __DIR__ . '/includes/agents.php';
 require_once __DIR__ . '/includes/cron.php';
 
 
@@ -45,12 +45,12 @@ add_action(
 /**
  * Register our wporg_settings_init to the admin_init action hook.
  */
-add_action( 'admin_init', 'wporg_settings_init' );
+add_action( 'admin_init', 'booking_calendar_settings_init' );
 
 /**
  * custom option and settings
  */
-function wporg_settings_init() {
+function booking_calendar_settings_init() {
 	
 
 }

@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('agent-booking-admin-calendar');
+        var calendarEl = document.getElementById('booking-calendar-admin-calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridWeek',
           locale: 'hu',
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             Ügynök:
                             ${info.event.extendedProps.name}
                         </p>
-                        <p class="${info.event.extendedProps.status}" style="color: ${getSlotColor(info.event.extendedProps.status)};">
+                        <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
                             Status:
                             ${info.event.extendedProps.status}
                         </p>
@@ -277,7 +277,7 @@ async function updateSlot(id, status) {
     console.log(data);
 }
 
-function getSlotColor(status) {
+function getBookingCalendarSlotColor(status) {
 
     switch(status) {
 
@@ -292,6 +292,155 @@ function getSlotColor(status) {
     }
 }
 
-function refreshCalendar() {
-    window.hotelBookingCalendar.refetchEvents();
+async function removeRoom(e, id) {
+    const url =
+        hotelBooking.restUrl +
+        'remove-room';
+
+    const response = await fetch(
+        url,
+        {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+
+                'X-WP-Nonce':
+                    hotelBooking.nonce
+            },
+
+            body: JSON.stringify({
+                id: id
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+    if (e.target.classList.contains('remove-item')) {
+        e.target.parentElement.parentElement.remove();
+    }
+
+}
+
+async function addRoom(room_no, 
+    name,
+    capacity,
+    is_active) {
+    const url =
+        hotelBooking.restUrl +
+        'add-room';
+
+    const response = await fetch(
+        url,
+        {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+
+                'X-WP-Nonce':
+                    hotelBooking.nonce
+            },
+
+            body: JSON.stringify({
+                room_no, 
+                name,
+                capacity,
+                is_active
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if (data.id) {
+        const html = `
+            <tr class="${is_active ? 'active' : 'inactive'}">
+                <td>${room_no}</td>
+                <td>${name}</td>
+                <td class="center">${capacity}</td>
+                <td>${is_active ? 'AKTÍV' : 'INAKTÍV'}</td>
+                <td><button type="button" class="button remove-item" onclick="removeRoom(event, ${data.id})">–</button></td>
+            </tr>
+        `;
+        let container = document.getElementById('booking-calendar-rooms-repeater');
+        container.insertAdjacentHTML('beforeend', html);
+    }
+}
+
+async function addRoomPopUp() {
+    const room_no_str = "Szobaszám";
+    const name_str = "Szoba neve";
+    const capacity_str = "Kapacitás";
+    const is_active_str = "Aktív";
+
+    const { value: formValues } = await Swal.fire({
+
+        title: 'Szoba hozzáadása',
+
+        html: `
+            <div class="booking-calendar-item">
+                <input type="text"
+                    id="booking-calendar_room_no"
+                    value=""
+                    placeholder="${room_no_str}" />
+
+                <input type="text"
+                    id="booking-calendar_room_name"
+                    value=""
+                    placeholder="${name_str}" />
+
+                <input type="number"
+                    id="booking-calendar_capacity"
+                    value=""
+                    placeholder="${capacity_str}" />
+
+                <input type="checkbox"
+                    id="booking-calendar_is_active"
+                    checked />
+                <span>${is_active_str}</span>
+            </div>
+        `,
+
+        showCancelButton: true,
+        allowEscapeKey: true,
+        preConfirm: () => {
+            const room_no = document.getElementById("booking-calendar_room_no").value;
+            const name = document.getElementById("booking-calendar_room_name").value;
+            const capacity = document.getElementById("booking-calendar_capacity").value;
+            const is_active = document.getElementById("booking-calendar_is_active").checked;
+
+            const isValid = (room_no && name && capacity);
+            return [
+                room_no, 
+                name,
+                capacity,
+                is_active,
+                isValid
+            ]
+        },
+        didOpen: () => {
+
+        }
+    });
+
+    const [room_no, name, capacity, is_active, isValid] = formValues;
+    if (isValid) { 
+        // generate
+        addRoom(room_no, 
+            name,
+            capacity,
+            is_active);
+    }
+    else {
+        Swal.fire({
+            title: 'Hiba!',
+            text: 'Minden mezőt töltsön ki!',
+            icon: 'error'
+        });
+    }
 }

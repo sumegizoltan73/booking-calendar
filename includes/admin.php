@@ -10,7 +10,6 @@ add_action(
 );
 
 function booking_calendar_admin_menu() {
-
     add_menu_page(
         'Hotel Booking',
         'Hotel Booking',
@@ -22,11 +21,48 @@ function booking_calendar_admin_menu() {
     );
 }
 
+function get_rooms() {
+    global $wpdb;
+    
+    $items = [];
+
+    $table_rooms =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            *
+
+        FROM
+            {$table_rooms}
+
+        ORDER BY id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'room_no' => $row->room_no,
+
+            'room_name' => $row->room_name,
+
+            'capacity' => intval($row->capacity),
+
+            'is_active' => intval($row->is_active)
+        ];
+    }
+
+    return $items;
+}
 function booking_calendar_admin_page() {
 
     $admin_notice = "";
 
-    $rooms = [];
+    $items = get_rooms();
 
     ?>
 
@@ -39,6 +75,36 @@ function booking_calendar_admin_page() {
                 }
             ?>
         </h2>
+        <h2>Szobák</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Szobaszám</th>
+                    <th>Szoba név</th>
+                    <th>Kapacitás</th>
+                    <th>Foglalhatóság</th>
+                    <th>Törlés</th>
+                </tr>
+            </thead>
+            <tbody id="booking-calendar-rooms-repeater">
+                <?php foreach ( $items as $item ) : ?>
+                    <tr class="<?php echo intval($item['is_active']) == 1  ? 'active' : 'inactive'; ?>">
+                        <td><?php echo $item['room_no'] ; ?></td>
+                        <td><?php echo $item['room_name'] ; ?></td>
+                        <td class="center"><?php echo $item['capacity'] ; ?></td>
+                        <td><?php echo intval($item['is_active']) == 1  ? 'AKTÍV' : 'INAKTÍV'; ?></td>
+                        <td><button type="button" class="button remove-item" onclick="removeRoom(event, <?php echo $item['id'] ; ?>)">–</button></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+            
+        </table>
+
+        <button type="button" class="button" id="add-item" onclick="addRoomPopUp()">+ Hozzáad</button>
+        <br /><br />
+
+
+        <h2>Kalendár</h2>
         <button id="generate-slots" onclick="generateSlots()">
             Slotok generálása
         </button>
@@ -49,14 +115,14 @@ function booking_calendar_admin_page() {
             >
                 Minden szoba
             </option>
-            <?php foreach ($rooms as $room): ?>
+            <?php foreach ($items as $room): ?>
 
                 <option
-                    value="<?php echo esc_attr($room->ID); ?>"
+                    value="<?php echo esc_attr($room['id']); ?>"
                 >
                     <?php
                     echo esc_html(
-                        $room->display_name
+                        $room['room_no']
                     );
                     ?>
                 </option>
@@ -87,7 +153,7 @@ function booking_calendar_admin_assets($hook) {
     }
 
     wp_enqueue_script(
-        'fullcalendar',
+        'booking_calendar_fullcalendar',
         plugin_dir_url(__FILE__) . '../assets/vendor/fullcalendar/index.global.min.js',
         [],
         '6.1.20',
@@ -95,15 +161,15 @@ function booking_calendar_admin_assets($hook) {
     );
 
     wp_enqueue_script(
-        'fullcalendar-locales',
+        'booking_calendar_fullcalendar-locales',
         plugin_dir_url(__FILE__) . '../assets/vendor/fullcalendar/locales-all.global.min.js',
-        ['fullcalendar'],
+        ['booking_calendar_fullcalendar'],
         '6.1.20',
         true
     );
 
     wp_enqueue_script(
-        'sweetalert2',
+        'booking_calendar_sweetalert2',
         'https://cdn.jsdelivr.net/npm/sweetalert2@11',
         [],
         '11',
@@ -111,28 +177,28 @@ function booking_calendar_admin_assets($hook) {
     );
 
     wp_enqueue_script(
-        'momentjs',
+        'booking_calendar_momentjs',
         'https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js',
         [],
         '2.30.1',
         true
     );
     wp_enqueue_script(
-        'daterangepicker',
+        'booking_calendar_daterangepicker',
         'https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js',
-        ['jquery', 'momentjs'],
+        ['jquery', 'booking_calendar_momentjs'],
         '3.1',
         true
     );
     wp_enqueue_style(
-        'daterangepicker-style',
+        'booking_calendar_daterangepicker-style',
         'https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css',
         [],
         '3.1'
     );
 
     wp_enqueue_style(
-        'admin-style',
+        'booking_calendar_admin-style',
         plugin_dir_url(__FILE__) . '../assets/css/admin.css?nocache=' . date("Ymd_His"),
         [],
         '0.1.4'
@@ -141,7 +207,7 @@ function booking_calendar_admin_assets($hook) {
     wp_enqueue_script(
         'booking-calendar-admin',
         plugin_dir_url(__FILE__) . '../assets/js/admin.js?nocache=' . date("Ymd_His"),
-        ['fullcalendar'],
+        ['booking_calendar_fullcalendar'],
         filemtime(
             plugin_dir_path(__FILE__) .
             '../assets/js/admin.js'

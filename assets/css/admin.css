@@ -1,3 +1,9 @@
 .swal2-html-container li {
   font-size: 13px;
 }
+#booking-calendar-rooms-repeater td.center {
+  text-align: center;
+}
+#booking-calendar-rooms-repeater tr.inactive td {
+  color: lightgray;
+}

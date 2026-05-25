@@ -236,7 +236,7 @@ function booking_calendar_get_slot_color(
     }
 }
 
-function get_monogram(
+function booking_calendar_get_monogram(
     $title
 ) {
     $monogram = '';
@@ -303,7 +303,7 @@ function booking_calendar_calendar_events(
     foreach ($result as $row) {
 
         $events[] = [
-            'title' => get_monogram($row->display_name),
+            'title' => booking_calendar_get_monogram($row->display_name),
 
             'start' => $row->slot_start_utc,
 
@@ -498,7 +498,7 @@ function booking_calendar_slot_notes(
     foreach ($result as $row) {
 
         $notes[] = [
-            'author_monogram' => get_monogram($row->display_name),
+            'author_monogram' => booking_calendar_get_monogram($row->display_name),
 
             'created_at' => $row->created_at,
 

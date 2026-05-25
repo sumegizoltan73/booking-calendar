@@ -107,4 +107,38 @@ function booking_calendar_register_routes() {
             'callback' => 'booking_calendar_slot_bookings'
         ]
     );
+
+    register_rest_route(
+        'booking-calendar/v1',
+        '/remove-room',
+        [
+            'methods'  => 'POST',
+
+            'callback' => 'booking_calendar_remove_room',
+
+            'permission_callback' => function () {
+
+                return current_user_can(
+                    'manage_options'
+                );
+            }
+        ]
+    );
+
+    register_rest_route(
+        'booking-calendar/v1',
+        '/add-room',
+        [
+            'methods'  => 'POST',
+
+            'callback' => 'booking_calendar_add_room',
+
+            'permission_callback' => function () {
+
+                return current_user_can(
+                    'manage_options'
+                );
+            }
+        ]
+    );
 }
