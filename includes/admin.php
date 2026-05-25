@@ -105,11 +105,11 @@ function booking_calendar_admin_page() {
 
 
         <h2>Kalendár</h2>
-        <button id="generate-slots" onclick="generateSlots()">
+        <button id="generate-slots" onclick="generateBookingCalendarSlots()">
             Slotok generálása
         </button>
 
-        <select id="room-id" onchange="refreshCalendar()">
+        <select id="room-id" onchange="refreshBookingCalendarCalendar()">
             <option
                 value="0"
             >
@@ -130,7 +130,7 @@ function booking_calendar_admin_page() {
             <?php endforeach; ?>
         </select>
 
-        <button id="generate-unique-slots" onclick="generateUniqueSlotsPopUp()">
+        <button id="generate-unique-slots" onclick="generateUniqueBookingCalendarSlotsPopUp()">
             Egyedi Slotok generálása
         </button>
 

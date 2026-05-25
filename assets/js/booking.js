@@ -1,5 +1,5 @@
 
-async function bookingSlot(id) {
+async function bookingBookingCalendarSlot(id) {
     const { value: formValues } = await Swal.fire({
 
         title: 'Időpont foglalás',

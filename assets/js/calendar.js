@@ -36,13 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             Ügynök:
                             ${info.event.extendedProps.name}
                         </p>
-                        <p class="${info.event.extendedProps.status}" style="color: ${getSlotColor(info.event.extendedProps.status)};">
+                        <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
                             Status:
                             ${info.event.extendedProps.status}
                         </p>
 
                         <p>
-                            <button onclick="bookingSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
+                            <button onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
                             
                         </p>
                     ` :
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             Ügynök:
                             ${info.event.extendedProps.name}
                         </p>
-                        <p class="${info.event.extendedProps.status}" style="color: ${getSlotColor(info.event.extendedProps.status)};">
+                        <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
                             Status:
                             ${info.event.extendedProps.status}
                         </p>
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.hotelBookingCalendar = calendar;
       });
 
-function getSlotColor(status) {
+function getBookingCalendarSlotColor(status) {
 
     switch(status) {
 

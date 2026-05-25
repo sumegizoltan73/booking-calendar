@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 let buttons = "";
                 let bookings_html = "";
                 if (info.event.extendedProps.status === 'BOOKED') {
-                    const bookings = await getBookings(info.event.extendedProps.slot_id);
+                    const bookings = await getBookingCalendarBookings(info.event.extendedProps.slot_id);
                     bookings_html = '<h3>Foglalás adatai</h3><ul>' + bookings.map((field, index) => {
                         return `<li>
                                     Ügyfél neve: ${field.extendedProps.customer_name}
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </li>`;
                     }).join('') + '</ul>';
 
-                    const bookednotes = await getNotes(info.event.extendedProps.slot_id);
+                    const bookednotes = await getBookingCalendarNotes(info.event.extendedProps.slot_id);
                     bookednote = '<h3>Megjegyzések</h3><ul>' + bookednotes.map((field, index) => {
                         return `<li>
                                     ${field.extendedProps.note}
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 else {
                     buttons = `
                         <p>
-                            <button onclick="updateSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
+                            <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
                             <span style="margin-left: 20px;">&nbsp;</span>
-                            <button onclick="updateSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
+                            <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
                         </p>
                     `;
                 }
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.hotelBookingCalendar = calendar;
       });
 
-async function getNotes(slot_id) {
+async function getBookingCalendarNotes(slot_id) {
     const response = await fetch(
         hotelBooking.restUrl + 'calendar-slot-notes?slot_id=' + slot_id
     );
@@ -99,7 +99,7 @@ async function getNotes(slot_id) {
     return data;
 } 
 
-async function getBookings(slot_id) {
+async function getBookingCalendarBookings(slot_id) {
     const response = await fetch(
         hotelBooking.restUrl + 'calendar-slot-bookings?slot_id=' + slot_id
     );
@@ -108,7 +108,7 @@ async function getBookings(slot_id) {
     return data;
 } 
 
-async function generateSlots() {
+async function generateBookingCalendarSlots() {
     const url = hotelBooking.restUrl + 'generate-slots';
     const roomId = document.getElementById('room-id').value;
     const response = await fetch(
@@ -132,7 +132,7 @@ async function generateSlots() {
     console.log(data);
 }
 
-async function generateUniqueSlots(room, 
+async function generateUniqueBookingCalendarSlots(room, 
     range,
     from,
     to,
@@ -164,7 +164,7 @@ async function generateUniqueSlots(room,
     console.log(data);
 }
 
-async function generateUniqueSlotsPopUp() {
+async function generateUniqueBookingCalendarSlotsPopUp() {
     const room_select_html = document.getElementById('room-id').innerHTML;
 
     const { value: formValues } = await Swal.fire({
@@ -230,7 +230,7 @@ async function generateUniqueSlotsPopUp() {
     const [room, range, from, to, duration, isValid] = formValues;
     if (isValid) { 
         // generate
-        generateUniqueSlots(room, 
+        generateUniqueBookingCalendarSlots(room, 
             range,
             from,
             to,
@@ -245,7 +245,7 @@ async function generateUniqueSlotsPopUp() {
     }
 }
 
-async function updateSlot(id, status) {
+async function updateBookingCalendarSlot(id, status) {
 
     const url =
         hotelBooking.restUrl +
