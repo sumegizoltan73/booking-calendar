@@ -1,10 +1,36 @@
+async function bookingCalendaerGetRooms(slot_id) {
+    const response = await fetch(
+                  hotelBooking.restUrl + 'calendar-slot-get_rooms?slot_id=' + slot_id
+              );
+
+    const data = await response.json();
+
+    return data;
+}
 
 async function bookingBookingCalendarSlot(id) {
+    const rooms = await bookingCalendaerGetRooms(id);
+    let rooms_html = "";
+    if (rooms) {
+        rooms_html = '<div class="booking-calendar-rooms">' + rooms.map((field, index) => {
+            return `
+                <div 
+                    class="booking-calendar-${field.status} 
+                        booking-calendar-${field.is_active === 1 ? 'active' : 'inactive'}"
+                    data-id="${field.id}"
+                    data-capacity="${field.capacity}"
+                >
+                    ${field.room_no}
+                </div>
+            `;
+        }).join('') + '</div>';
+    }
     const { value: formValues } = await Swal.fire({
 
-        title: 'Időpont foglalás',
+        title: 'Szoba foglalás',
 
         html: `
+            ${rooms_html}
             <input
                 id="bookings-name"
                 type="text"
@@ -63,7 +89,7 @@ async function bookingBookingCalendarSlot(id) {
     const [name, email, phone, notes, isValid] = formValues;
     if (isValid) { 
         // generate
-        fireBooking(id, 
+        fireBookingCalendarBooking(id, 
             name,
             email,
             phone,
@@ -79,7 +105,7 @@ async function bookingBookingCalendarSlot(id) {
     
 }
 
-async function fireBooking(id, 
+async function fireBookingCalendarBooking(id, 
     name,
     email,
     phone,

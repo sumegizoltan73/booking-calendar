@@ -60,6 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
                             <span style="margin-left: 20px;">&nbsp;</span>
                             <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
+                            <span style="margin-left: 20px;">&nbsp;</span>
+                            <button onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
                         </p>
                     `;
                 }

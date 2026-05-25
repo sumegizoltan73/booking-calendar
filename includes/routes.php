@@ -141,4 +141,14 @@ function booking_calendar_register_routes() {
             }
         ]
     );
+
+    register_rest_route(
+        'booking-calendar/v1',
+        '/calendar-slot-get_rooms',
+        [
+            'methods'  => 'GET',
+
+            'callback' => 'booking_calendar_get_rooms_for_slot'
+        ]
+    );
 }

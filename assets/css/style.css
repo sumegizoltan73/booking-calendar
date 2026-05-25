@@ -1,0 +1,26 @@
+.booking-calendar-rooms {
+  display: flex;
+}
+.booking-calendar-rooms div {
+  padding: 5px;
+  border: solid 1px gray;
+  margin: 2px;
+}
+.booking-calendar-rooms div.booking-calendar-FREE.booking-calendar-active {
+  background-color: green;
+  color: white;
+}
+.booking-calendar-rooms div.booking-calendar-BLOCKED.booking-calendar-active {
+  background-color: gray;
+  color: white;
+}
+.booking-calendar-rooms div.booking-calendar-BOOKED.booking-calendar-active {
+  background-color: red;
+  color: white;
+}
+.booking-calendar-rooms div.booking-calendar-BOOKED {
+  margin-top: 40px;
+}
+.booking-calendar-rooms div.booking-calendar-FREE {
+  margin-bottom: 40px;
+}

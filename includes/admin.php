@@ -58,6 +58,7 @@ function get_rooms() {
 
     return $items;
 }
+
 function booking_calendar_admin_page() {
 
     $admin_notice = "";
@@ -201,7 +202,14 @@ function booking_calendar_admin_assets($hook) {
         'booking_calendar_admin-style',
         plugin_dir_url(__FILE__) . '../assets/css/admin.css?nocache=' . date("Ymd_His"),
         [],
-        '0.1.4'
+        '0.1.8'
+    );
+
+    wp_enqueue_style(
+        'booking_calendar-style',
+        plugin_dir_url(__FILE__) . '../assets/css/style.css?nocache=' . date("Ymd_His"),
+        [],
+        '0.1.8'
     );
 
     wp_enqueue_script(
@@ -215,8 +223,30 @@ function booking_calendar_admin_assets($hook) {
         true
     );
 
+    wp_enqueue_script(
+        'booking-calendar-booking',
+        plugin_dir_url(__FILE__) . '../assets/js/booking.js?nocache=' . date("Ymd_His"),
+        ['booking_calendar_fullcalendar'],
+        filemtime(
+            plugin_dir_path(__FILE__) .
+            '../assets/js/booking.js'
+        ),
+        true
+    );
+
     wp_localize_script(
         'booking-calendar-admin',
+        'hotelBooking',
+        [
+            'nonce' => wp_create_nonce('wp_rest'),
+            'restUrl' => rest_url(
+                'booking-calendar/v1/'
+            )
+        ]
+    );
+    
+    wp_localize_script(
+        'booking-calendar-booking',
         'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),

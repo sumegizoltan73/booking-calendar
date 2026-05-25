@@ -87,3 +87,79 @@ function booking_calendar_remove_room(
         'message' => 'Room deleted'
     ];
 }
+
+function booking_calendar_get_rooms_for_slot(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    
+    $items = [];
+
+    $table_rooms =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
+    $table_mapping =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+    
+    $slot_id = intval($request->get_param(
+            'slot_id'
+        )
+    );
+    
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            'FREE' as status,
+            r.id,
+            r.room_no,
+            r.is_active,
+            r.capacity,
+            {$slot_id} as slot_id
+        FROM
+            {$table_rooms} r
+        WHERE
+            NOT EXISTS (
+                SELECT 
+                    m.slot_id
+                FROM 
+                    {$table_mapping} m
+                WHERE
+                    m.room_id = r.id AND m.slot_id = {$slot_id}
+            )
+        UNION ALL
+        SELECT
+            'BOOKED' as status,
+            r.id,
+            r.room_no,
+            r.is_active,
+            r.capacity,
+            {$slot_id} as slot_id
+        FROM
+            {$table_rooms} r
+        JOIN 
+            {$table_mapping} m
+            ON m.room_id = r.id AND m.slot_id = {$slot_id}
+        ORDER BY status, id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'room_no' => $row->room_no,
+
+            'status' => $row->status,
+
+            'capacity' => intval($row->capacity),
+
+            'is_active' => intval($row->is_active),
+
+            'slot_id' => intval($row->slot_id),
+
+            'color' => booking_calendar_get_slot_color($row->status)
+        ];
+    }
+
+    return $items;
+}
