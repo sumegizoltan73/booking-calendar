@@ -3,7 +3,7 @@
  * Plugin Name:       Booking Calendar Plugin
  * Plugin URI:        https://github.com/sumegizoltan73/booking-calendar
  * Description:       Hotel booking calendar - WordPress plugin.
- * Version:           0.1.5
+ * Version:           0.1.6
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Zoltan Peter Sumegi & ChatGPT

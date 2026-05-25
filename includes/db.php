@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('BOOKING_CALENDAR_DB_VERSION', '2.0');
+define('BOOKING_CALENDAR_DB_VERSION', '2.1');
 
 function booking_calendar_install() {
 
@@ -43,8 +43,6 @@ function booking_calendar_create_tables() {
 
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
-        room_id BIGINT UNSIGNED NOT NULL,
-
         slot_start_utc DATETIME NOT NULL,
         slot_end_utc DATETIME NOT NULL,
 
@@ -58,7 +56,6 @@ function booking_calendar_create_tables() {
         PRIMARY KEY  (id),
 
         UNIQUE KEY idx_room_date (
-            room_id,
             slot_start_utc
         ),
 
@@ -69,6 +66,68 @@ function booking_calendar_create_tables() {
     ) $charset_collate ;
     ";
 
+		$table_name2 =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
+
+
+    $sql2 = "
+    CREATE TABLE $table_name2 (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+				room_no VARCHAR(50) NOT NULL,
+
+				room_name VARCHAR(255),
+
+				capacity INT DEFAULT 1,
+
+				is_active TINYINT(1) NOT NULL DEFAULT 1,
+
+				created_at DATETIME NOT NULL,
+
+				PRIMARY KEY (id),
+
+				UNIQUE KEY uniq_room_no (
+						room_no
+				)
+
+    ) $charset_collate ;
+    ";
+
+		$table_name2_1 =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+
+
+    $sql2_1 = "
+    CREATE TABLE $table_name2_1 (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+				slot_id BIGINT UNSIGNED NOT NULL,
+
+				booking_id BIGINT UNSIGNED NOT NULL,
+
+				room_id BIGINT UNSIGNED NOT NULL,
+
+				created_at DATETIME NOT NULL,
+
+				PRIMARY KEY (id),
+
+				UNIQUE KEY uniq_slot_room (
+						slot_id,
+						room_id
+				),
+
+				KEY idx_booking (
+						booking_id
+				),
+
+				KEY idx_room (
+						room_id
+				)
+
+    ) $charset_collate ;
+    ";
 
 		$table_name3 =
         $wpdb->prefix . 'hotel_weekly_rules';
@@ -91,7 +150,7 @@ function booking_calendar_create_tables() {
 				start_time TIME NOT NULL,
 				end_time TIME NOT NULL,
 
-				slot_duration_minutes INT UNSIGNED NOT NULL DEFAULT 30,
+				slot_duration_minutes INT UNSIGNED NOT NULL DEFAULT 1440,
 
 				is_active TINYINT(1) NOT NULL DEFAULT 1,
 
@@ -161,10 +220,6 @@ function booking_calendar_create_tables() {
 
 				PRIMARY KEY (id),
 
-				UNIQUE KEY uniq_slot_booking (
-						slot_id
-				),
-
 				KEY idx_status (
 						status
 				),
@@ -231,32 +286,13 @@ function booking_calendar_create_tables() {
 
     dbDelta($sql);
     
+    dbDelta($sql2);
+    dbDelta($sql2_1);
+
     dbDelta($sql3);
     dbDelta($sql4);
     dbDelta($sql7);
     dbDelta($sql6);
-
-		$index_exists = $wpdb->get_var(
-				"
-				SHOW INDEX
-				FROM {$table_name}
-				WHERE Key_name = 'uniq_slot'
-				"
-		);
-
-		if (!$index_exists) {
-
-				$wpdb->query(
-						"
-						ALTER TABLE {$table_name}
-
-						ADD UNIQUE KEY uniq_slot (
-								agent_id,
-								slot_start_utc
-						)
-						"
-				);
-		}
 
     update_option(
         'booking_calendar_db_version',
