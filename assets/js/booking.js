@@ -101,24 +101,26 @@ async function bookingBookingCalendarSlot(id) {
         }
     });
 
-    const [name, email, phone, notes, booked_rooms, isValid] = formValues;
-    if (isValid) { 
-        // generate
-        fireBookingCalendarBooking(id, 
-            name,
-            email,
-            phone,
-            booked_rooms,
-            notes);
+    if (formValues) {
+        // if not cancel selected
+        const [name, email, phone, notes, booked_rooms, isValid] = formValues;
+        if (isValid) { 
+            // generate
+            fireBookingCalendarBooking(id, 
+                name,
+                email,
+                phone,
+                booked_rooms,
+                notes);
+        }
+        else {
+            Swal.fire({
+                title: 'Hiba!',
+                text: 'Minden mezőt töltsön ki!',
+                icon: 'error'
+            });
+        }
     }
-    else {
-        Swal.fire({
-            title: 'Hiba!',
-            text: 'Minden mezőt töltsön ki!',
-            icon: 'error'
-        });
-    }
-    
 }
 
 async function fireBookingCalendarBooking(id, 

@@ -54,17 +54,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </li>`;
                     }).join('') + '</ul>';
                 }
-                else {
-                    buttons = `
-                        <p>
-                            <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
-                            <span style="margin-left: 20px;">&nbsp;</span>
-                            <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
-                            <span style="margin-left: 20px;">&nbsp;</span>
-                            <button onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
-                        </p>
+                let booking_button = "";
+                if (info.event.extendedProps.status !== 'BLOCKED') {
+                    booking_button = `
+                        <span style="margin-left: 20px;">&nbsp;</span>
+                        <button onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
                     `;
                 }
+                buttons = `
+                    <p>
+                        <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
+                        <span style="margin-left: 20px;">&nbsp;</span>
+                        <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
+                        ${booking_button}
+                    </p>
+                `;
                 Swal.fire({
 
                     title: 'Slot részletek',
@@ -72,10 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     html: `
                         <p>
                             ${info.event.start.toLocaleString()}
-                        </p>
-                        <p>
-                            Ügynök:
-                            ${info.event.extendedProps.name}
                         </p>
                         <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
                             Status:
