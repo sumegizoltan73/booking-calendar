@@ -30,29 +30,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 let bookings_html = "";
                 if (info.event.extendedProps.status === 'BOOKED') {
                     const bookings = await getBookingCalendarBookings(info.event.extendedProps.slot_id);
-                    bookings_html = '<h3>Foglalás adatai</h3><ul>' + bookings.map((field, index) => {
-                        return `<li>
-                                    Ügyfél neve: ${field.extendedProps.customer_name}
-                                    <br />
-                                    Ügyfél Email: <a href="mailto:${field.extendedProps.customer_email}">${field.extendedProps.customer_email}</a>
-                                    <br />
-                                    Ügyfél Telefon: ${field.extendedProps.customer_phone}
-                                    <br />
-                                    Foglalás időpontja: ${field.created_at}
-                                    <br />
-                                    Státusz: ${field.extendedProps.status}
-                                    <br />
-                                    Bejegyzés készítője: ${field.extendedProps.created_by === null ? "VENDÉG" : field.extendedProps.created_by}
-                                    
-                                </li>`;
-                    }).join('') + '</ul>';
+                    bookings_html = `
+                        <h3>Foglalások adatai</h3>
+                        <table class="booking-calendar-details">
+                            <thead>
+                                <tr>
+                                    <th>Név</th>
+                                    <th>Telefonszám</th>
+                                    <th style="width: 33%;">Szobák</th>
+                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        ` + bookings.map((field, index) => {
+                        return `<tr>
+                                    <td>${field.extendedProps.customer_name}</td>
+                                    <td>${field.extendedProps.customer_phone}</td>
+                                    <td>${field.extendedProps.rooms}</td>
+                                    <td 
+                                        data-monogram="${field.extendedProps.customer_monogram}"
+                                        data-email="${field.extendedProps.customer_email}"
+                                        data-created_at="${field.created_at}"
+                                        data-created_by="${field.extendedProps.created_by}"
+                                    ><button> i </button></td>
+                                </tr>`;
+                    }).join('') + '</tbody></table>';
 
                     const bookednotes = await getBookingCalendarNotes(info.event.extendedProps.slot_id);
-                    bookednote = '<h3>Megjegyzések</h3><ul>' + bookednotes.map((field, index) => {
-                        return `<li>
-                                    ${field.extendedProps.note}
-                                </li>`;
-                    }).join('') + '</ul>';
+                    bookednote = `
+                        <h3>Megjegyzések</h3>
+                        <table class="booking-calendar-notes">
+                            <thead>
+                                <tr>
+                                    <th>Monogram</th>
+                                    <th style="width: 73%;">Megjegyzés</th>
+                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    ` + bookednotes.map((field, index) => {
+                        return `<tr>
+                                    <td>${field.customer_monogram}</td>
+                                    <td>${field.extendedProps.note}</td>
+                                    <td><button> i </button></td>
+                                </tr>`;
+                    }).join('') + '</tbody></table>';
                 }
                 let booking_button = "";
                 if (info.event.extendedProps.status !== 'BLOCKED') {

@@ -27,3 +27,12 @@
 .booking-calendar-rooms div.booking-calendar.selected {
   border: solid 3px red;
 }
+
+.booking-calendar-details, .booking-calendar-notes {
+  font-size: 0.76em;
+  border-collapse: collapse;
+}
+.booking-calendar-details th, .booking-calendar-notes th,
+.booking-calendar-details td, .booking-calendar-notes td {
+  border: 1px solid lightgray;
+}

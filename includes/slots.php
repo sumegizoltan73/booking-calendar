@@ -305,6 +305,7 @@ function booking_calendar_update_slot_status(
     }
 }
 
+// booking rooms
 function booking_calendar_slot(
     WP_REST_Request $request
 ) {
@@ -355,9 +356,7 @@ function booking_calendar_slot(
         (slot_id, customer_email, customer_name, customer_phone, created_by, created_at)
         SELECT id as slot_id, '{$email}' as customer_email, '{$name}' as customer_name, '{$phone}' as customer_phone, {$created_id_str} as created_by, NOW() as created_at 
         FROM {$table} s
-        WHERE s.id = {$id} AND s.status = 'FREE' AND NOT EXISTS (
-            SELECT slot_id FROM {$table_bookings} b WHERE b.slot_id = s.id
-        )
+        WHERE s.id = {$id} AND s.status = 'FREE'
         "
     );
 
@@ -368,38 +367,41 @@ function booking_calendar_slot(
     } else {
 
         $booking_id = $wpdb->insert_id;
-        if ($notes != "") {
-            $wpdb->query(
-                "
-                INSERT INTO {$table_notes}
-                (booking_id, author_user_id, note_type, visibility, note, created_at)
-                VALUES ({$booking_id}, {$created_id_str}, 'COSTUMER', 'AGENT', '{$notes}', NOW())
-                "
-            );
-        }
 
-        foreach ($rooms as $room) { 
-            $result = $wpdb->insert(
-                $table_mapping,
-                [
-                    'slot_id' => $id,
-
-                    'booking_id' => $booking_id,
-
-                    'room_id' => intval($room),
-
-                    'created_at' =>
-                        current_time(
-                            'mysql',
-                            true
-                        ),
-                ]
-            );
-
-            if ($result === false) {
-                error_log(
-                    'INSERT ERROR: ' . $wpdb->last_error
+        if ($booking_id > 0) {
+            if ($notes != "") {
+                $wpdb->query(
+                    "
+                    INSERT INTO {$table_notes}
+                    (booking_id, author_user_id, note_type, visibility, note, created_at)
+                    VALUES ({$booking_id}, {$created_id_str}, 'COSTUMER', 'AGENT', '{$notes}', NOW())
+                    "
                 );
+            }
+
+            foreach ($rooms as $room) { 
+                $result = $wpdb->insert(
+                    $table_mapping,
+                    [
+                        'slot_id' => $id,
+
+                        'booking_id' => $booking_id,
+
+                        'room_id' => intval($room),
+
+                        'created_at' =>
+                            current_time(
+                                'mysql',
+                                true
+                            ),
+                    ]
+                );
+
+                if ($result === false) {
+                    error_log(
+                        'INSERT ERROR: ' . $wpdb->last_error
+                    );
+                }
             }
         }
     }
@@ -473,6 +475,8 @@ function booking_calendar_slot_notes(
         $notes[] = [
             'author_monogram' => booking_calendar_get_monogram($row->display_name),
 
+            'customer_monogram' => booking_calendar_get_monogram($row->customer_name),
+
             'created_at' => $row->created_at,
 
             'extendedProps' => [
@@ -497,6 +501,10 @@ function booking_calendar_slot_bookings(
         $wpdb->prefix . 'hotel_booking_calendar_slots';
     $table_bookings =
         $wpdb->prefix . 'hotel_booking_bookings';
+    $table_mappings =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+    $table_rooms =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
     $usertable =
         $wpdb->prefix . 'users';
 
@@ -516,7 +524,8 @@ function booking_calendar_slot_bookings(
                 b.customer_name,
                 b.customer_email,
                 b.customer_phone,
-                b.status
+                b.status,
+                b.id
 
             FROM
                 {$table_bookings} b
@@ -537,13 +546,45 @@ function booking_calendar_slot_bookings(
 
     foreach ($result as $row) {
 
+        $rooms_result = $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT
+                    m.created_at,
+                    r.room_no,
+                    r.room_name,
+                    r.capacity,
+                    r.is_active,
+                    r.id as room_id
+
+                FROM
+                    {$table_mappings} m
+                JOIN
+                    {$table_rooms} r
+                    ON m.room_id = r.id
+
+                WHERE
+                    m.booking_id = %d
+                ",
+                $row->id
+            )
+        );
+        $rooms = [];
+        foreach ($rooms_result as $rooms_row) {
+            $rooms[] = $rooms_row->room_no;
+        }
+        $rooms_str = implode(',', $rooms);
+
         $bookings[] = [
             'created_at' => $row->created_at,
 
             'extendedProps' => [
                 'slot_id' => $slot_id,
+                'booking_id' => $row->id,
                 'status' => $row->status,
+                'rooms' => $rooms_str,
                 'customer_name' => $row->customer_name,
+                'customer_monogram' => booking_calendar_get_monogram($row->customer_name),
                 'customer_email' => $row->customer_email,
                 'customer_phone' => $row->customer_phone,
                 'created_by' => $row->display_name
