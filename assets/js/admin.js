@@ -288,7 +288,7 @@ function getBookingCalendarSlotColor(status) {
     }
 }
 
-async function removeRoom(e, id) {
+async function removeConfirmedRoom(e, id) {
     const url =
         hotelBooking.restUrl +
         'remove-room';
@@ -317,7 +317,19 @@ async function removeRoom(e, id) {
     if (e.target.classList.contains('remove-item')) {
         e.target.parentElement.parentElement.remove();
     }
+}
 
+async function removeRoom(e, id) {
+    Swal.fire({
+        title: "Biztosan törölni szeretné a szobát?",
+        icon: "question",
+        showCancelButton: true,
+        allowEscapeKey: true,
+        didOpen: () => {
+            jQuery('.swal2-confirm')
+                .on("click", function() { removeConfirmedRoom(e, id); })
+        }
+    });
 }
 
 async function addRoom(room_no, 
