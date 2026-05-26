@@ -24,3 +24,6 @@
 .booking-calendar-rooms div.booking-calendar-FREE {
   margin-bottom: 40px;
 }
+.booking-calendar-rooms div.booking-calendar.selected {
+  border: solid 3px red;
+}

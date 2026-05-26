@@ -317,6 +317,8 @@ function booking_calendar_slot(
         $wpdb->prefix . 'hotel_booking_bookings';
     $table_notes =
         $wpdb->prefix . 'hotel_booking_notes';
+    $table_mapping =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
     $params =
         $request->get_json_params();
 
@@ -333,6 +335,11 @@ function booking_calendar_slot(
     $notes = sanitize_text_field(
             $params['notes']
         );
+    $booked_rooms = sanitize_text_field(
+            $params['booked_rooms']
+        );
+    $rooms = explode(',', $booked_rooms);
+
     $current_user = wp_get_current_user();
     $created_id = null;
     $created_id_str = 'NULL';
@@ -369,6 +376,31 @@ function booking_calendar_slot(
                 VALUES ({$booking_id}, {$created_id_str}, 'COSTUMER', 'AGENT', '{$notes}', NOW())
                 "
             );
+        }
+
+        foreach ($rooms as $room) { 
+            $result = $wpdb->insert(
+                $table_mapping,
+                [
+                    'slot_id' => $id,
+
+                    'booking_id' => $booking_id,
+
+                    'room_id' => intval($room),
+
+                    'created_at' =>
+                        current_time(
+                            'mysql',
+                            true
+                        ),
+                ]
+            );
+
+            if ($result === false) {
+                error_log(
+                    'INSERT ERROR: ' . $wpdb->last_error
+                );
+            }
         }
     }
 

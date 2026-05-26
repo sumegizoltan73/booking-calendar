@@ -15,7 +15,7 @@ async function bookingBookingCalendarSlot(id) {
         rooms_html = '<div class="booking-calendar-rooms">' + rooms.map((field, index) => {
             return `
                 <div 
-                    class="booking-calendar-${field.status} 
+                    class="booking-calendar booking-calendar-${field.status} 
                         booking-calendar-${field.is_active === 1 ? 'active' : 'inactive'}"
                     data-id="${field.id}"
                     data-capacity="${field.capacity}"
@@ -24,6 +24,10 @@ async function bookingBookingCalendarSlot(id) {
                 </div>
             `;
         }).join('') + '</div>';
+        rooms_html += `
+            <input type="hidden" id="booking-calendar-selected" value="" /> 
+            <div class="booking-calendar-info">Jelöljön ki szobaszámot foglaláshoz. Több szobát is megjelölhet.</div>
+        `;
     }
     const { value: formValues } = await Swal.fire({
 
@@ -65,6 +69,7 @@ async function bookingBookingCalendarSlot(id) {
             const email = document.getElementById("bookings-email").value;
             const phone = document.getElementById("bookings-phone").value;
             const notes = document.getElementById("bookings-notes").value;
+            const booked_rooms = document.getElementById('booking-calendar-selected').value;
 
             const isValid = (name && email && phone);
             return [
@@ -72,27 +77,38 @@ async function bookingBookingCalendarSlot(id) {
                 email,
                 phone,
                 notes,
+                booked_rooms,
                 isValid
             ]
         },
         didOpen: () => {
-
-            jQuery('#slot-date-range')
-                .daterangepicker({
-                    locale: {
-                        format: 'YYYY-MM-DD'
-                    }
+            jQuery('.booking-calendar-FREE').on('click', function () {
+                jQuery(this).toggleClass("selected");
+                const selected_rooms = [];
+                const selected_room_ids = [];
+                jQuery('.booking-calendar.selected').each(function(index) {
+                    selected_rooms.push(jQuery(this).text().trim());
+                    selected_room_ids.push(jQuery(this).attr('data-id'));
                 });
+                document.getElementById('booking-calendar-selected').value = selected_room_ids.join(',');
+                if (selected_rooms.length < 1) {
+                    jQuery('.booking-calendar-info').html('Jelöljön ki szobaszámot foglaláshoz. Több szobát is megjelölhet.');
+                }
+                else {
+                    jQuery('.booking-calendar-info').html('Foglalt szobák: ' + selected_rooms.join(','));
+                }
+            });
         }
     });
 
-    const [name, email, phone, notes, isValid] = formValues;
+    const [name, email, phone, notes, booked_rooms, isValid] = formValues;
     if (isValid) { 
         // generate
         fireBookingCalendarBooking(id, 
             name,
             email,
             phone,
+            booked_rooms,
             notes);
     }
     else {
@@ -109,7 +125,9 @@ async function fireBookingCalendarBooking(id,
     name,
     email,
     phone,
-    notes) {
+    booked_rooms,
+    notes
+) {
 
     const url =
         hotelBooking.restUrl +
@@ -132,7 +150,8 @@ async function fireBookingCalendarBooking(id,
                 email,
                 name,
                 phone,
-                notes
+                notes,
+                booked_rooms
             })
         }
     );
