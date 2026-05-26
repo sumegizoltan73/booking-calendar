@@ -463,7 +463,7 @@ function booking_calendar_slot_notes(
                 b.slot_id = %d
 
             ORDER BY
-                n.created_at DESC
+                n.created_at
             ",
             $slot_id
         )
