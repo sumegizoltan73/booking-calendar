@@ -223,29 +223,73 @@ function booking_calendar_calendar_events(
     $result = $wpdb->get_results(
         "
         SELECT
-            s.*,
-            CASE WHEN b.slot_id IS NOT NULL AND s.status = 'FREE' THEN 'BOOKED' ELSE s.status END as state
+                    s.*,
+                    'BLOCKED' as state
+                FROM
+                    {$table} s
 
-        FROM
-            {$table} s
+                WHERE
+                        s.slot_start_utc >= CURDATE()
+                    AND s.status = 'BLOCKED'
+        UNION ALL
+        SELECT
+                    s.*,
+                    'FREE' as state
+                FROM
+                    {$table} s
 
-        LEFT JOIN
-            $table_bookings b 
-            ON b.slot_id = s.id
+                WHERE
+                        s.slot_start_utc >= CURDATE()
+                    AND s.status = 'FREE'
+                    AND NOT EXISTS (
+                        SELECT
+                            b.id
+                        FROM
+                            {$table_bookings} b
+                        WHERE 
+                            b.slot_id = s.id
+                    )
+        UNION ALL
+        SELECT
+                    s.*,
+                    'BOOKED' as state
+                FROM
+                    {$table} s
 
-        WHERE
-            s.slot_start_utc >= CURDATE()
+                WHERE
+                        s.slot_start_utc >= CURDATE()
+                    AND s.status = 'FREE'
+                    AND EXISTS (
+                        SELECT
+                            b.id
+                        FROM
+                            {$table_bookings} b
+                        WHERE 
+                            b.slot_id = s.id
+                    )
 
         ORDER BY
-            s.slot_start_utc
+            slot_start_utc
         "
     );
     $events = [];
 
     foreach ($result as $row) {
+        
+        $rooms_str = '';
+        if ($row->state == 'BOOKED') {
+            $items = booking_calendar_get_rooms($row->id);
+            $rooms = [];
+            foreach ($items as $rooms_row) {
+                if ($rooms_row['status'] == 'BOOKED') {
+                    $rooms[] = $rooms_row['room_no'];
+                }
+            }
+            $rooms_str = implode(',', $rooms);
+        }
 
         $events[] = [
-            'title' => '',
+            'title' => $rooms_str,
 
             'start' => $row->slot_start_utc,
 

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
           initialView: 'timeGridWeek',
           locale: 'hu',
           headerToolbar: {
-              center: 'dayGridMonth,timeGridWeek,dayGridDay' // buttons for switching between views
+              center: 'multiMonthYear,dayGridMonth,timeGridWeek,dayGridDay' // buttons for switching between views
           },
           eventTimeFormat: {
               hour: '2-digit',

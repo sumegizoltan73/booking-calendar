@@ -88,8 +88,8 @@ function booking_calendar_remove_room(
     ];
 }
 
-function booking_calendar_get_rooms_for_slot(
-    WP_REST_Request $request
+function booking_calendar_get_rooms(
+    $slot_id
 ) {
     global $wpdb;
     
@@ -99,11 +99,6 @@ function booking_calendar_get_rooms_for_slot(
         $wpdb->prefix . 'hotel_booking_calendar_rooms';
     $table_mapping =
         $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
-    
-    $slot_id = intval($request->get_param(
-            'slot_id'
-        )
-    );
     
     $result = $wpdb->get_results(
         "
@@ -160,6 +155,19 @@ function booking_calendar_get_rooms_for_slot(
             'color' => booking_calendar_get_slot_color($row->status)
         ];
     }
+
+    return $items;
+}
+function booking_calendar_get_rooms_for_slot(
+    WP_REST_Request $request
+) {
+
+    $slot_id = intval($request->get_param(
+            'slot_id'
+        )
+    );
+    
+    $items = booking_calendar_get_rooms($slot_id);
 
     return $items;
 }
