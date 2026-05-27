@@ -36,3 +36,23 @@
 .booking-calendar-details td, .booking-calendar-notes td {
   border: 1px solid lightgray;
 }
+
+.fc-event-time {
+  display: none;
+}
+
+.booking-calendar-info {
+  font-size: 0.7em;
+  margin-top: 5px;
+}
+
+.swal2-html-container input {
+  width: 80%;
+  font-size: 0.7em;
+  min-height: 30px;
+}
+.swal2-html-container textarea {
+  width: 80%;
+  font-size: 0.7em;
+  min-height: 70px;
+}

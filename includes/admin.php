@@ -155,7 +155,7 @@ function booking_calendar_admin_assets($hook) {
 
     wp_enqueue_script(
         'booking_calendar_fullcalendar',
-        plugin_dir_url(__FILE__) . '../assets/vendor/fullcalendar/index.global.min.js',
+        'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js',
         [],
         '6.1.20',
         true
@@ -163,7 +163,7 @@ function booking_calendar_admin_assets($hook) {
 
     wp_enqueue_script(
         'booking_calendar_fullcalendar-locales',
-        plugin_dir_url(__FILE__) . '../assets/vendor/fullcalendar/locales-all.global.min.js',
+        plugin_dir_url(__FILE__) . '../assets/vendor/fullcalendar/locales-all.global.min.js?nocache=' . date("Ymd_His"),
         ['booking_calendar_fullcalendar'],
         '6.1.20',
         true

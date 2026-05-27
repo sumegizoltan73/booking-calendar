@@ -54,10 +54,13 @@ async function bookingBookingCalendarSlot(id) {
                 type="text"
                 class="swal2-input"
             />
+            <br />
+            <span style="font-weight: bold; font-size: 1.1em;">Megjegyzés:</span>
             <textarea
                 id="bookings-notes"
-                placeholder="Megjegyzés"
                 class="swal2-input"
+                col:"30"
+                rows:"10"
             />
             
         `,
