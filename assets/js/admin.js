@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (info.event.extendedProps.status !== 'BLOCKED') {
                     booking_button = `
                         <span style="margin-left: 20px;">&nbsp;</span>
-                        <button class="button" onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
+                        <button class="button" onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id}, '${info.event.start.toLocaleString()}')">FOGLALÁS</button>
                     `;
                 }
                 buttons = `

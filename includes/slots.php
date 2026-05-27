@@ -398,6 +398,44 @@ function booking_calendar_slot(
         trim($range[1]),
         new DateTimeZone('UTC')
     );
+    $diff = date_diff($start_date, $end_date);
+    $days = intval($diff->format("%a"));
+
+    $base_slot_start = $wpdb->get_var(
+        $wpdb->prepare(
+            "
+            SELECT slot_start_utc
+            FROM {$table}
+            WHERE id = %d
+            ",
+            $id
+        )
+    );
+
+    $slot_ids = [];
+    if ($base_slot_start) {
+        $booking_start = new DateTime(
+            $base_slot_start,
+            new DateTimeZone('UTC')
+        );
+        $booking_end = clone $booking_start;
+        $booking_end->modify("+{$days} day");
+
+        $slot_ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "
+                SELECT id
+                FROM {$table}
+                WHERE status = 'FREE'
+                    AND slot_start_utc >= %s
+                    AND slot_start_utc <= %s
+                ORDER BY slot_start_utc
+                ",
+                $booking_start->format('Y-m-d H:i:s'),
+                $booking_end->format('Y-m-d H:i:s')
+            )
+        );
+    }
 
     $current_user = wp_get_current_user();
     $created_id = null;
@@ -408,57 +446,61 @@ function booking_calendar_slot(
     }
 
 
-    $result = $wpdb->query(
-        "
-        INSERT INTO {$table_bookings} 
-        (slot_id, customer_email, customer_name, customer_phone, created_by, created_at)
-        SELECT id as slot_id, '{$email}' as customer_email, '{$name}' as customer_name, '{$phone}' as customer_phone, {$created_id_str} as created_by, NOW() as created_at 
-        FROM {$table} s
-        WHERE s.id = {$id} AND s.status = 'FREE'
-        "
-    );
+    foreach ($slot_ids as $slot_id) {
+        $slot_id = intval($slot_id);
 
-    if ($result === false) {
+        $result = $wpdb->query(
+            "
+            INSERT INTO {$table_bookings} 
+            (slot_id, customer_email, customer_name, customer_phone, created_by, created_at)
+            SELECT id as slot_id, '{$email}' as customer_email, '{$name}' as customer_name, '{$phone}' as customer_phone, {$created_id_str} as created_by, NOW() as created_at 
+            FROM {$table} s
+            WHERE s.id = {$slot_id} AND s.status = 'FREE'
+            "
+        );
 
-        error_log($wpdb->last_error);
+        if ($result === false) {
 
-    } else {
+            error_log($wpdb->last_error);
 
-        $booking_id = $wpdb->insert_id;
+        } else {
 
-        if ($booking_id > 0) {
-            if ($notes != "") {
-                $wpdb->query(
-                    "
-                    INSERT INTO {$table_notes}
-                    (booking_id, author_user_id, note_type, visibility, note, created_at)
-                    VALUES ({$booking_id}, {$created_id_str}, 'COSTUMER', 'AGENT', '{$notes}', NOW())
-                    "
-                );
-            }
+            $booking_id = $wpdb->insert_id;
 
-            foreach ($rooms as $room) { 
-                $result = $wpdb->insert(
-                    $table_mapping,
-                    [
-                        'slot_id' => $id,
-
-                        'booking_id' => $booking_id,
-
-                        'room_id' => intval($room),
-
-                        'created_at' =>
-                            current_time(
-                                'mysql',
-                                true
-                            ),
-                    ]
-                );
-
-                if ($result === false) {
-                    error_log(
-                        'INSERT ERROR: ' . $wpdb->last_error
+            if ($booking_id > 0) {
+                if ($notes != "") {
+                    $wpdb->query(
+                        "
+                        INSERT INTO {$table_notes}
+                        (booking_id, author_user_id, note_type, visibility, note, created_at)
+                        VALUES ({$booking_id}, {$created_id_str}, 'COSTUMER', 'AGENT', '{$notes}', NOW())
+                        "
                     );
+                }
+
+                foreach ($rooms as $room) { 
+                    $result = $wpdb->insert(
+                        $table_mapping,
+                        [
+                            'slot_id' => $slot_id,
+
+                            'booking_id' => $booking_id,
+
+                            'room_id' => intval($room),
+
+                            'created_at' =>
+                                current_time(
+                                    'mysql',
+                                    true
+                                ),
+                        ]
+                    );
+
+                    if ($result === false) {
+                        error_log(
+                            'INSERT ERROR: ' . $wpdb->last_error
+                        );
+                    }
                 }
             }
         }

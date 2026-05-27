@@ -8,7 +8,7 @@ async function bookingCalendaerGetRooms(slot_id) {
     return data;
 }
 
-async function bookingBookingCalendarSlot(id) {
+async function bookingBookingCalendarSlot(id, startDate) {
     const rooms = await bookingCalendaerGetRooms(id);
     let rooms_html = "";
     if (rooms) {
@@ -94,17 +94,18 @@ async function bookingBookingCalendarSlot(id) {
             ]
         },
         didOpen: () => {
+            const formatedStartDate = startDate.replace(' 0:00:00', '').replaceAll('. ', '-');
             jQuery('#slot-date-range')
                 .daterangepicker({
                     locale: {
                         format: 'YYYY-MM-DD'
                     },
-                    minDate: new Date(),
+                    minDate: formatedStartDate,
 
                 });
             jQuery('#slot-date-range').on('apply.daterangepicker', function(ev, picker) {
                 const selected_startdate = picker.startDate.format('YYYY-MM-DD');
-                jQuery('#slot-date-range').data('daterangepicker').setStartDate(new Date());
+                jQuery('#slot-date-range').data('daterangepicker').setStartDate(formatedStartDate);
                 const required_startdate = picker.startDate.format('YYYY-MM-DD');
                 if (selected_startdate === required_startdate) {
                     jQuery('#booking-calendar-range-error').html('&nbsp;');}
