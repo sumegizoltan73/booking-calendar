@@ -528,6 +528,7 @@ function booking_calendar_slot_notes(
                 'note_type' => $row->note_type,
                 'author_name' => $row->display_name,
                 'author_user_id' => $row->author_user_id,
+                'customer_name' => $row->customer_name,
                 'visibility' => $row->visibility,
                 'note' => $row->note
             ]

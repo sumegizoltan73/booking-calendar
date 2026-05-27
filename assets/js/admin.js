@@ -48,11 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <td>${field.extendedProps.customer_phone}</td>
                                     <td>${field.extendedProps.rooms}</td>
                                     <td 
-                                        data-monogram="${field.extendedProps.customer_monogram}"
-                                        data-email="${field.extendedProps.customer_email}"
-                                        data-created_at="${field.created_at}"
-                                        data-created_by="${field.extendedProps.created_by}"
-                                    ><button> i </button></td>
+                                        data-monogram="${escapeBookingCalendarHtml(field.extendedProps.customer_monogram)}"
+                                        data-customer_email="${escapeBookingCalendarHtml(field.extendedProps.customer_email)}"
+                                        data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
+                                        data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
+                                    ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
                                 </tr>`;
                     }).join('') + '</tbody></table>';
 
@@ -72,7 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         return `<tr>
                                     <td>${field.customer_monogram}</td>
                                     <td>${field.extendedProps.note}</td>
-                                    <td><button> i </button></td>
+                                    <td
+                                        data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
+                                        data-author_name="${escapeBookingCalendarHtml(field.extendedProps.author_name)}"
+                                        data-customer_name="${escapeBookingCalendarHtml(field.extendedProps.customer_name)}"
+                                        data-note_type="${escapeBookingCalendarHtml(field.extendedProps.note_type)}"
+                                        data-visibility="${escapeBookingCalendarHtml(field.extendedProps.visibility)}"
+                                    ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
                                 </tr>`;
                     }).join('') + '</tbody></table>';
                 }
@@ -286,6 +292,58 @@ function getBookingCalendarSlotColor(status) {
         case 'BLOCKED':
             return '#9e9e9e';
     }
+}
+
+function toggleBookingCalendarBookingDetails(button) {
+    const row = button.closest('tr');
+    const cell = button.closest('td');
+    const nextRow = row.nextElementSibling;
+
+    if (nextRow && nextRow.classList.contains('booking-calendar-booking-details-row')) {
+        nextRow.remove();
+        return;
+    }
+
+    const labels = {
+        monogram: 'Monogram',
+        customer_email: 'E-mail',
+        created_at: 'Létrehozva',
+        created_by: 'Létrehozta',
+        author_name: 'Szerző',
+        customer_name: 'Ügyfél neve',
+        note_type: 'Megjegyzés típusa',
+        visibility: 'Láthatóság'
+    };
+
+    const details = cell.getAttributeNames()
+        .filter((attribute) => attribute.startsWith('data-'))
+        .map((attribute) => {
+            const key = attribute.replace('data-', '');
+            const label = labels[key] || key.replace(/_/g, ' ');
+            const value = cell.getAttribute(attribute);
+
+            if (key === 'customer_email') {
+                const email = escapeBookingCalendarHtml(value);
+                return `${label}: <a href="mailto:${email}">${email}</a>`;
+            }
+
+            return `${label}: ${escapeBookingCalendarHtml(value)}`;
+        })
+        .join('<br>');
+
+    const detailsRow = document.createElement('tr');
+    detailsRow.className = 'booking-calendar-booking-details-row';
+    detailsRow.innerHTML = `<td colspan="${row.children.length}">${details}</td>`;
+    row.insertAdjacentElement('afterend', detailsRow);
+}
+
+function escapeBookingCalendarHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 async function removeConfirmedRoom(e, id) {
