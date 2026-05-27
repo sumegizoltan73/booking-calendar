@@ -36,6 +36,13 @@ async function bookingBookingCalendarSlot(id) {
         html: `
             ${rooms_html}
             <input
+                id="slot-date-range"
+                class="swal2-input"
+            />
+            <br />
+            <span id="booking-calendar-range-error">&nbsp;</span>
+            <br />
+            <input
                 id="bookings-name"
                 type="text"
                 placeholder="Név"
@@ -73,7 +80,8 @@ async function bookingBookingCalendarSlot(id) {
             const phone = document.getElementById("bookings-phone").value;
             const notes = document.getElementById("bookings-notes").value;
             const booked_rooms = document.getElementById('booking-calendar-selected').value;
-
+            const range = document.getElementById("slot-date-range").value;
+            
             const isValid = (name && email && phone);
             return [
                 name, 
@@ -81,10 +89,29 @@ async function bookingBookingCalendarSlot(id) {
                 phone,
                 notes,
                 booked_rooms,
+                range,
                 isValid
             ]
         },
         didOpen: () => {
+            jQuery('#slot-date-range')
+                .daterangepicker({
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                    minDate: new Date(),
+
+                });
+            jQuery('#slot-date-range').on('apply.daterangepicker', function(ev, picker) {
+                const selected_startdate = picker.startDate.format('YYYY-MM-DD');
+                jQuery('#slot-date-range').data('daterangepicker').setStartDate(new Date());
+                const required_startdate = picker.startDate.format('YYYY-MM-DD');
+                if (selected_startdate === required_startdate) {
+                    jQuery('#booking-calendar-range-error').html('&nbsp;');}
+                else { 
+                    jQuery('#booking-calendar-range-error').html('A Slot kezdete kötelezően: ' + required_startdate);
+                }
+            });
             jQuery('.booking-calendar-FREE').on('click', function () {
                 jQuery(this).toggleClass("selected");
                 const selected_rooms = [];
@@ -106,7 +133,7 @@ async function bookingBookingCalendarSlot(id) {
 
     if (formValues) {
         // if not cancel selected
-        const [name, email, phone, notes, booked_rooms, isValid] = formValues;
+        const [name, email, phone, notes, booked_rooms, range, isValid] = formValues;
         if (isValid) { 
             // generate
             fireBookingCalendarBooking(id, 
@@ -114,7 +141,9 @@ async function bookingBookingCalendarSlot(id) {
                 email,
                 phone,
                 booked_rooms,
-                notes);
+                notes,
+                range
+            );
         }
         else {
             Swal.fire({
@@ -131,7 +160,8 @@ async function fireBookingCalendarBooking(id,
     email,
     phone,
     booked_rooms,
-    notes
+    notes,
+    range
 ) {
 
     const url =
@@ -156,7 +186,8 @@ async function fireBookingCalendarBooking(id,
                 name,
                 phone,
                 notes,
-                booked_rooms
+                booked_rooms,
+                range
             })
         }
     );

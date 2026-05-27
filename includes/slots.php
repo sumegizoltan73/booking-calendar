@@ -277,7 +277,7 @@ function booking_calendar_calendar_events(
     foreach ($result as $row) {
         
         $rooms_str = '';
-        if ($row->state == 'BOOKED') {
+        if ($row->state == 'BOOKED' || $row->state == 'BLOCKED') {
             $items = booking_calendar_get_rooms($row->id);
             $rooms = [];
             foreach ($items as $rooms_row) {
@@ -301,7 +301,8 @@ function booking_calendar_calendar_events(
 
             'extendedProps' => [
                 'slot_id' => $row->id,
-                'status' => $row->state
+                'status' => $row->state,
+                'in_blocked_status' => $row->status == 'BLOCKED' && $rooms_str != '' ? 'BOOKED' : 'FREE'
             ]
         ];
     }
@@ -384,6 +385,19 @@ function booking_calendar_slot(
             $params['booked_rooms']
         );
     $rooms = explode(',', $booked_rooms);
+    $range = sanitize_text_field(
+            $params['range']
+        );
+    $range = explode(" - ", $range);
+    
+    $start_date = new DateTime(
+        trim($range[0]),
+        new DateTimeZone('UTC')
+    );
+    $end_date = new DateTime(
+        trim($range[1]),
+        new DateTimeZone('UTC')
+    );
 
     $current_user = wp_get_current_user();
     $created_id = null;

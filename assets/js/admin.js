@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 let bookednote = "";
                 let buttons = "";
                 let bookings_html = "";
-                if (info.event.extendedProps.status === 'BOOKED') {
+                if (info.event.extendedProps.status === 'BOOKED' || info.event.extendedProps.in_blocked_status === 'BOOKED') {
                     const bookings = await getBookingCalendarBookings(info.event.extendedProps.slot_id);
                     bookings_html = `
                         <h3>Foglalások adatai</h3>
@@ -86,14 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (info.event.extendedProps.status !== 'BLOCKED') {
                     booking_button = `
                         <span style="margin-left: 20px;">&nbsp;</span>
-                        <button onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
+                        <button class="button" onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id})">FOGLALÁS</button>
                     `;
                 }
                 buttons = `
                     <p>
-                        <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
+                        <button class="button" onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
                         <span style="margin-left: 20px;">&nbsp;</span>
-                        <button onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
+                        <button class="button" onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
                         ${booking_button}
                     </p>
                 `;
