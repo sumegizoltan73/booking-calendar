@@ -401,10 +401,10 @@ function booking_calendar_slot(
     $diff = date_diff($start_date, $end_date);
     $days = intval($diff->format("%a"));
 
-    $base_slot_start = $wpdb->get_var(
+    $base_slot = $wpdb->get_row(
         $wpdb->prepare(
             "
-            SELECT slot_start_utc
+            SELECT slot_start_utc, slot_end_utc
             FROM {$table}
             WHERE id = %d
             ",
@@ -413,13 +413,53 @@ function booking_calendar_slot(
     );
 
     $slot_ids = [];
-    if ($base_slot_start) {
+    if ($base_slot) {
         $booking_start = new DateTime(
-            $base_slot_start,
+            $base_slot->slot_start_utc,
             new DateTimeZone('UTC')
         );
+        $base_slot_end = new DateTime(
+            $base_slot->slot_end_utc,
+            new DateTimeZone('UTC')
+        );
+        $slot_duration = $base_slot_end->getTimestamp() - $booking_start->getTimestamp();
         $booking_end = clone $booking_start;
         $booking_end->modify("+{$days} day");
+
+        if ($days > 0) {
+            $values = [];
+            $prepare_values = [];
+
+            for ($d = 1; $d <= $days; $d++) {
+                $slot_start = clone $booking_start;
+                $slot_start->modify("+{$d} day");
+
+                $slot_end = clone $slot_start;
+                $slot_end->modify("+{$slot_duration} seconds");
+
+                $values[] = "(%s, %s, 'FREE', NOW(), NOW())";
+                $prepare_values[] = $slot_start->format('Y-m-d H:i:s');
+                $prepare_values[] = $slot_end->format('Y-m-d H:i:s');
+            }
+
+            if (!empty($values)) {
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "
+                        INSERT IGNORE INTO {$table}
+                        (
+                            slot_start_utc,
+                            slot_end_utc,
+                            status,
+                            created_at,
+                            updated_at
+                        )
+                        VALUES " . implode(", ", $values),
+                        $prepare_values
+                    )
+                );
+            }
+        }
 
         $slot_ids = $wpdb->get_col(
             $wpdb->prepare(

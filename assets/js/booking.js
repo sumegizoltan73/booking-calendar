@@ -101,6 +101,8 @@ async function bookingBookingCalendarSlot(id, startDate) {
                         format: 'YYYY-MM-DD'
                     },
                     minDate: formatedStartDate,
+                    startDate: formatedStartDate,
+                    endDate: formatedStartDate
 
                 });
             jQuery('#slot-date-range').on('apply.daterangepicker', function(ev, picker) {
