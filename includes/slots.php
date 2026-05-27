@@ -385,10 +385,10 @@ function booking_calendar_slot(
             $params['booked_rooms']
         );
     $rooms = explode(',', $booked_rooms);
-    $range = sanitize_text_field(
+    $raw_range = sanitize_text_field(
             $params['range']
         );
-    $range = explode(" - ", $range);
+    $range = explode(" - ", $raw_range);
     
     $start_date = new DateTime(
         trim($range[0]),
@@ -474,6 +474,17 @@ function booking_calendar_slot(
                         INSERT INTO {$table_notes}
                         (booking_id, author_user_id, note_type, visibility, note, created_at)
                         VALUES ({$booking_id}, {$created_id_str}, 'COSTUMER', 'AGENT', '{$notes}', NOW())
+                        "
+                    );
+                }
+
+                // Insert SYSTEM note for more then 1 day booking
+                if ($days > 0) {
+                    $wpdb->query(
+                        "
+                        INSERT INTO {$table_notes}
+                        (booking_id, author_user_id, note_type, visibility, note, created_at)
+                        VALUES ({$booking_id}, {$created_id_str}, 'SYSTEM', 'AGENT', 'Több napos foglalás: {$start_date->format('Y-m-d')} - {$end_date->format('Y-m-d')}', NOW())
                         "
                     );
                 }
