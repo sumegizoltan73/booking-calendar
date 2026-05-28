@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
               successCallback(data);
           },
+          eventDidMount: function(info) {
+            addBookingCalendarEventTooltip(info);
+          },
           eventClick: async function(info) {
 
                 let bookednote = "";
@@ -119,6 +122,169 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.render();
         window.hotelBookingCalendar = calendar;
       });
+
+const bookingCalendarTooltipCache = new Map();
+
+function addBookingCalendarEventTooltip(info) {
+    const slotId = info.event.extendedProps.slot_id;
+    let tooltip = null;
+
+    info.el.title = getBookingCalendarEventTooltipText(info.event);
+
+    const removeTooltip = () => {
+        if (tooltip) {
+            tooltip.remove();
+            tooltip = null;
+        }
+    };
+
+    const positionTooltip = (event) => {
+        if (!tooltip) {
+            return;
+        }
+
+        tooltip.style.left = (event.pageX + 12) + 'px';
+        tooltip.style.top = (event.pageY + 12) + 'px';
+    };
+
+    info.el.addEventListener('mouseenter', async function(event) {
+        if (!slotId) {
+            return;
+        }
+
+        const details = await getBookingCalendarEventTooltipDetails(info.event);
+
+        if (!info.el.matches(':hover')) {
+            return;
+        }
+
+        tooltip = renderBookingCalendarEventTooltip(details);
+        document.body.appendChild(tooltip);
+        positionTooltip(event);
+    });
+
+    info.el.addEventListener('mousemove', positionTooltip);
+    info.el.addEventListener('mouseleave', removeTooltip);
+}
+
+function getBookingCalendarEventTooltipText(event) {
+    const parts = [];
+
+    if (event.title) {
+        parts.push(event.title);
+    }
+
+    if (event.extendedProps.status) {
+        parts.push('Status: ' + event.extendedProps.status);
+    }
+
+    return parts.join('\n');
+}
+
+async function getBookingCalendarEventTooltipDetails(event) {
+    const slotId = event.extendedProps.slot_id;
+    const hasBookingDetails = event.extendedProps.status === 'BOOKED'
+        || event.extendedProps.in_blocked_status === 'BOOKED';
+
+    if (!hasBookingDetails) {
+        return {
+            title: event.title,
+            status: event.extendedProps.status,
+            bookings: [],
+            notes: []
+        };
+    }
+
+    if (!bookingCalendarTooltipCache.has(slotId)) {
+        bookingCalendarTooltipCache.set(slotId, Promise.all([
+            getBookingCalendarBookings(slotId),
+            getBookingCalendarNotes(slotId)
+        ]));
+    }
+
+    const [bookings, notes] = await bookingCalendarTooltipCache.get(slotId);
+
+    return {
+        title: event.title,
+        status: event.extendedProps.status,
+        bookings,
+        notes
+    };
+}
+
+function renderBookingCalendarEventTooltip(details) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'booking-calendar-event-tooltip';
+    tooltip.style.cssText = [
+        'position:absolute',
+        'z-index:99999',
+        'max-width:320px',
+        'padding:8px 10px',
+        'background:#222',
+        'color:#fff',
+        'border-radius:4px',
+        'box-shadow:0 2px 8px rgba(0,0,0,.25)',
+        'font-size:12px',
+        'line-height:1.4',
+        'pointer-events:none'
+    ].join(';');
+
+    appendBookingCalendarTooltipLine(tooltip, 'Title', details.title);
+    appendBookingCalendarTooltipLine(tooltip, 'Status', details.status);
+
+    details.bookings.forEach((booking) => {
+        appendBookingCalendarTooltipLine(
+            tooltip,
+            'Customer',
+            booking.extendedProps.customer_name
+        );
+        appendBookingCalendarTooltipLine(
+            tooltip,
+            'Phone',
+            booking.extendedProps.customer_phone
+        );
+    });
+
+    const notes = details.notes
+        .map((note) => note.extendedProps.note)
+        .filter(Boolean);
+
+    if (notes.length) {
+        const label = document.createElement('div');
+        label.textContent = 'Notes:';
+        label.style.fontWeight = '700';
+        label.style.marginTop = '4px';
+        tooltip.appendChild(label);
+
+        const list = document.createElement('ul');
+        list.style.margin = '2px 0 0 16px';
+        list.style.padding = '0';
+
+        notes.forEach((note) => {
+            const item = document.createElement('li');
+            item.textContent = note;
+            list.appendChild(item);
+        });
+
+        tooltip.appendChild(list);
+    }
+
+    return tooltip;
+}
+
+function appendBookingCalendarTooltipLine(container, label, value) {
+    if (!value) {
+        return;
+    }
+
+    const line = document.createElement('div');
+    const labelElement = document.createElement('strong');
+
+    labelElement.textContent = label + ': ';
+    line.appendChild(labelElement);
+    line.appendChild(document.createTextNode(value));
+    container.appendChild(line);
+}
 
 async function getBookingCalendarNotes(slot_id) {
     const response = await fetch(
