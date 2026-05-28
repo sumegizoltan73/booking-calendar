@@ -282,12 +282,16 @@ function booking_calendar_calendar_events(
             $rooms = [];
             foreach ($items as $rooms_row) {
                 if ($rooms_row['status'] == 'BOOKED') {
-                    $rooms[] = $rooms_row['room_no'];
+                    // If filtered by room_id, only show the event if the booked room is the filtered one
+                    if ($room_id == 0 || $room_id == $rooms_row['id']) {
+                        $rooms[] = $rooms_row['room_no'];
+                    }
                 }
             }
             $rooms_str = implode(',', $rooms);
         }
 
+        
         $events[] = [
             'title' => $rooms_str,
 
@@ -295,7 +299,7 @@ function booking_calendar_calendar_events(
 
             'end' => $row->slot_end_utc,
 
-            'color' => booking_calendar_get_slot_color(
+            'color' => ($room_id != 0 && $rooms_str == '') ? '' :booking_calendar_get_slot_color(
                 $row->state
             ),
 

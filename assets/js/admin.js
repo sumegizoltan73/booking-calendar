@@ -510,3 +510,7 @@ async function addRoomPopUp() {
         });
     }
 }
+
+function refreshBookingCalendarCalendar(){
+    window.hotelBookingCalendar.refetchEvents();
+}
