@@ -236,17 +236,21 @@ function renderBookingCalendarEventTooltip(details) {
         appendBookingCalendarTooltipLine(
             tooltip,
             'Customer',
-            booking.extendedProps.customer_name
+            booking.extendedProps.customer_monogram + ' (' + booking.extendedProps.rooms + ')' + ' - ' + booking.extendedProps.customer_name,
+            true, 
+            false
         );
         appendBookingCalendarTooltipLine(
             tooltip,
             'Phone',
-            booking.extendedProps.customer_phone
+            booking.extendedProps.customer_phone,
+            false,
+            true
         );
     });
 
     const notes = details.notes
-        .map((note) => note.extendedProps.note)
+        .map((note) => note.customer_monogram + ' - ' + note.extendedProps.note)
         .filter(Boolean);
 
     if (notes.length) {
@@ -263,6 +267,8 @@ function renderBookingCalendarEventTooltip(details) {
         notes.forEach((note) => {
             const item = document.createElement('li');
             item.textContent = note;
+            item.style.borderBottom = '1px solid rgba(255,255,255,0.25)';
+            item.style.padding = '4px 0';
             list.appendChild(item);
         });
 
@@ -272,7 +278,7 @@ function renderBookingCalendarEventTooltip(details) {
     return tooltip;
 }
 
-function appendBookingCalendarTooltipLine(container, label, value) {
+function appendBookingCalendarTooltipLine(container, label, value, isBorderTop, isBorderBottom) {
     if (!value) {
         return;
     }
@@ -283,6 +289,14 @@ function appendBookingCalendarTooltipLine(container, label, value) {
     labelElement.textContent = label + ': ';
     line.appendChild(labelElement);
     line.appendChild(document.createTextNode(value));
+    if (isBorderTop) {
+        line.style.borderTop = '1px solid rgba(255,255,255,0.25)';
+        line.style.paddingTop = '4px';
+    }
+    if (isBorderBottom) {
+        line.style.borderBottom = '1px solid rgba(255,255,255,0.25)';
+        line.style.paddingBottom = '4px';
+    }
     container.appendChild(line);
 }
 
