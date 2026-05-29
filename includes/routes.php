@@ -108,6 +108,16 @@ function booking_calendar_register_routes() {
         ]
     );
 
+     register_rest_route(
+        'booking-calendar/v1',
+        '/calendar-day-bookings',
+        [
+            'methods'  => 'GET',
+
+            'callback' => 'booking_calendar_day_bookings'
+        ]
+    );
+
     register_rest_route(
         'booking-calendar/v1',
         '/remove-room',

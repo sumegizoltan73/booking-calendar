@@ -778,3 +778,117 @@ function booking_calendar_slot_bookings(
 
     return $bookings;
 }
+
+function booking_calendar_day_bookings(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    $table_slots =
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
+    $table_bookings =
+        $wpdb->prefix . 'hotel_booking_bookings';
+    $table_mappings =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+    $table_rooms =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
+    $usertable =
+        $wpdb->prefix . 'users';
+
+    $date = sanitize_text_field(
+        $request->get_param(
+            'date'
+        )
+    );
+    $exclude_slot_id = intval(
+        $request->get_param(
+            'exclude_slot_id'
+        )
+    );
+
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        return [];
+    }
+
+    $day_start = $date . ' 00:00:00';
+    $day_end = gmdate(
+        'Y-m-d H:i:s',
+        strtotime($day_start . ' +1 day')
+    );
+
+    $result = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                b.created_at,
+                b.slot_id,
+                u.display_name,
+                b.customer_name,
+                b.customer_email,
+                b.customer_phone,
+                b.status,
+                b.id,
+                GROUP_CONCAT(r.room_no ORDER BY r.room_no SEPARATOR ',') as rooms
+
+            FROM
+                {$table_bookings} b
+            JOIN
+                {$table_slots} s
+                ON b.slot_id = s.id
+            LEFT JOIN
+                {$usertable} u
+                ON b.created_by = u.ID
+            LEFT JOIN
+                {$table_mappings} m
+                ON m.booking_id = b.id
+            LEFT JOIN
+                {$table_rooms} r
+                ON m.room_id = r.id
+
+            WHERE
+                s.slot_start_utc < %s
+                AND s.slot_end_utc > %s
+                AND (%d = 0 OR b.slot_id <> %d)
+
+            GROUP BY
+                b.id,
+                b.created_at,
+                b.slot_id,
+                u.display_name,
+                b.customer_name,
+                b.customer_email,
+                b.customer_phone,
+                b.status
+
+            ORDER BY
+                s.slot_start_utc,
+                b.created_at
+            ",
+            $day_end,
+            $day_start,
+            $exclude_slot_id,
+            $exclude_slot_id
+        )
+    );
+    $bookings = [];
+
+    foreach ($result as $row) {
+
+        $bookings[] = [
+            'created_at' => $row->created_at,
+
+            'extendedProps' => [
+                'slot_id' => intval($row->slot_id),
+                'booking_id' => $row->id,
+                'status' => $row->status,
+                'rooms' => $row->rooms,
+                'customer_name' => $row->customer_name,
+                'customer_monogram' => booking_calendar_get_monogram($row->customer_name),
+                'customer_email' => $row->customer_email,
+                'customer_phone' => $row->customer_phone,
+                'created_by' => $row->display_name
+            ]
+        ];
+    }
+
+    return $bookings;
+}

@@ -100,6 +100,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${booking_button}
                     </p>
                 `;
+
+                const dayBookings = await getBookingCalendarDayBookings(
+                    getBookingCalendarDateString(info.event.start),
+                    info.event.extendedProps.slot_id
+                );
+                const day_bookings_html = renderBookingCalendarDayBookings(dayBookings);
+
                 Swal.fire({
 
                     title: 'Slot részletek',
@@ -113,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${info.event.extendedProps.status}
                         </p>
                         ${bookings_html}
+                        ${day_bookings_html}
                         ${bookednote}
                         ${buttons}
                     `
@@ -317,6 +325,59 @@ async function getBookingCalendarBookings(slot_id) {
     const data = await response.json();
     return data;
 } 
+
+async function getBookingCalendarDayBookings(date, exclude_slot_id) {
+    const params = new URLSearchParams({
+        date,
+        exclude_slot_id
+    });
+    const response = await fetch(
+        hotelBooking.restUrl + 'calendar-day-bookings?' + params.toString()
+    );
+
+    const data = await response.json();
+    return data;
+}
+
+function getBookingCalendarDateString(date) {
+    return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0')
+    ].join('-');
+}
+
+function renderBookingCalendarDayBookings(bookings) {
+    if (!bookings.length) {
+        return '';
+    }
+
+    return `
+        <h3>További foglalás ezen a napon még</h3>
+        <table class="booking-calendar-details">
+            <thead>
+                <tr>
+                    <th>Név</th>
+                    <th>Telefonszám</th>
+                    <th style="width: 33%;">Szobák</th>
+                    <th>Info</th>
+                </tr>
+            </thead>
+            <tbody>
+    ` + bookings.map((field) => {
+        return `<tr>
+                    <td>${field.extendedProps.customer_name}</td>
+                    <td>${field.extendedProps.customer_phone}</td>
+                    <td>${field.extendedProps.rooms}</td>
+                    <td
+                        data-monogram="${escapeBookingCalendarHtml(field.extendedProps.customer_monogram)}"
+                        data-customer_email="${escapeBookingCalendarHtml(field.extendedProps.customer_email)}"
+                        data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
+                        data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
+                    ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
+                </tr>`;
+    }).join('') + '</tbody></table>';
+}
 
 async function generateBookingCalendarSlots() {
     const url = hotelBooking.restUrl + 'generate-slots';
