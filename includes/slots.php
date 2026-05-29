@@ -422,35 +422,32 @@ function booking_calendar_slot(
             $base_slot->slot_start_utc,
             new DateTimeZone('UTC')
         );
-        $base_slot_end = new DateTime(
-            $base_slot->slot_end_utc,
-            new DateTimeZone('UTC')
-        );
-        $slot_duration = $base_slot_end->getTimestamp() - $booking_start->getTimestamp();
         $booking_end = clone $booking_start;
         $booking_end->modify("+{$days} day");
 
         if ($days > 0) {
-            $values = [];
-            $prepare_values = [];
+            $booking_start_sql = $booking_start->format('Y-m-d H:i:s');
+            $booking_end_sql = $booking_end->format('Y-m-d H:i:s');
 
-            for ($d = 1; $d <= $days; $d++) {
-                $slot_start = clone $booking_start;
-                $slot_start->modify("+{$d} day");
+            $slot_id = $wpdb->get_var(
+                $wpdb->prepare(
+                    "
+                    SELECT id
+                    FROM {$table}
+                    WHERE slot_start_utc = %s
+                        AND slot_end_utc = %s
+                    LIMIT 1
+                    ",
+                    $booking_start_sql,
+                    $booking_end_sql
+                )
+            );
 
-                $slot_end = clone $slot_start;
-                $slot_end->modify("+{$slot_duration} seconds");
-
-                $values[] = "(%s, %s, 'FREE', NOW(), NOW())";
-                $prepare_values[] = $slot_start->format('Y-m-d H:i:s');
-                $prepare_values[] = $slot_end->format('Y-m-d H:i:s');
-            }
-
-            if (!empty($values)) {
+            if (!$slot_id) {
                 $wpdb->query(
                     $wpdb->prepare(
                         "
-                        INSERT IGNORE INTO {$table}
+                        INSERT INTO {$table}
                         (
                             slot_start_utc,
                             slot_end_utc,
@@ -458,27 +455,56 @@ function booking_calendar_slot(
                             created_at,
                             updated_at
                         )
-                        VALUES " . implode(", ", $values),
-                        $prepare_values
+                        VALUES (
+                            %s,
+                            %s,
+                            'FREE',
+                            NOW(),
+                            NOW()
+                        )
+                        ON DUPLICATE KEY UPDATE
+                            slot_end_utc = IF(status = 'FREE', VALUES(slot_end_utc), slot_end_utc),
+                            updated_at = IF(status = 'FREE', NOW(), updated_at)
+                        ",
+                        $booking_start_sql,
+                        $booking_end_sql
+                    )
+                );
+
+                $slot_id = $wpdb->get_var(
+                    $wpdb->prepare(
+                        "
+                        SELECT id
+                        FROM {$table}
+                        WHERE slot_start_utc = %s
+                            AND slot_end_utc = %s
+                        LIMIT 1
+                        ",
+                        $booking_start_sql,
+                        $booking_end_sql
                     )
                 );
             }
-        }
 
-        $slot_ids = $wpdb->get_col(
-            $wpdb->prepare(
-                "
-                SELECT id
-                FROM {$table}
-                WHERE status = 'FREE'
-                    AND slot_start_utc >= %s
-                    AND slot_start_utc <= %s
-                ORDER BY slot_start_utc
-                ",
-                $booking_start->format('Y-m-d H:i:s'),
-                $booking_end->format('Y-m-d H:i:s')
-            )
-        );
+            if ($slot_id) {
+                $slot_ids = [intval($slot_id)];
+            }
+        } else {
+            $slot_ids = $wpdb->get_col(
+                $wpdb->prepare(
+                    "
+                    SELECT id
+                    FROM {$table}
+                    WHERE status = 'FREE'
+                        AND slot_start_utc >= %s
+                        AND slot_start_utc <= %s
+                    ORDER BY slot_start_utc
+                    ",
+                    $booking_start->format('Y-m-d H:i:s'),
+                    $booking_end->format('Y-m-d H:i:s')
+                )
+            );
+        }
     }
 
     $current_user = wp_get_current_user();
@@ -488,7 +514,6 @@ function booking_calendar_slot(
         $created_id = $current_user->ID;
         $created_id_str = "{$created_id}";
     }
-
 
     foreach ($slot_ids as $slot_id) {
         $slot_id = intval($slot_id);
