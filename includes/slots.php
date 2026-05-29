@@ -427,6 +427,9 @@ function booking_calendar_slot(
 
         if ($days > 0) {
             $booking_start_sql = $booking_start->format('Y-m-d H:i:s');
+
+            $booking_end->modify('+ 23 hours');
+            $booking_end->modify('+ 59 minutes');
             $booking_end_sql = $booking_end->format('Y-m-d H:i:s');
 
             $slot_id = $wpdb->get_var(

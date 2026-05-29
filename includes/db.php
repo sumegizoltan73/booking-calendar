@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('BOOKING_CALENDAR_DB_VERSION', '2.1');
+define('BOOKING_CALENDAR_DB_VERSION', '2.2');
 
 function booking_calendar_install() {
 
@@ -56,7 +56,8 @@ function booking_calendar_create_tables() {
         PRIMARY KEY  (id),
 
         UNIQUE KEY idx_room_date (
-            slot_start_utc
+            slot_start_utc,
+            slot_end_utc
         ),
 
         KEY idx_status (
@@ -294,7 +295,11 @@ function booking_calendar_create_tables() {
     dbDelta($sql7);
     dbDelta($sql6);
 
-    update_option(
+		$wpdb->query(
+        "ALTER TABLE $table_name DROP INDEX idx_room_date, ADD UNIQUE INDEX idx_room_date (slot_start_utc, slot_end_utc)"
+    );
+    
+		update_option(
         'booking_calendar_db_version',
         BOOKING_CALENDAR_DB_VERSION
     );
