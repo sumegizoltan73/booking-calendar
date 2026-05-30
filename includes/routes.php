@@ -134,6 +134,16 @@ function booking_calendar_register_routes() {
 
      register_rest_route(
         'booking-calendar/v1',
+        '/calendar-slot-own-notes',
+        [
+            'methods'  => 'GET',
+
+            'callback' => 'booking_calendar_slot_own_notes'
+        ]
+    );
+
+     register_rest_route(
+        'booking-calendar/v1',
         '/calendar-slot-bookings',
         [
             'methods'  => 'GET',

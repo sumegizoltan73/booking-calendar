@@ -684,6 +684,71 @@ function booking_calendar_slot_notes(
     return $notes;
 }
 
+function booking_calendar_slot_own_notes(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    $table_notes =
+        $wpdb->prefix . 'hotel_booking_slot_notes';
+    $usertable =
+        $wpdb->prefix . 'users';
+
+    $slot_id = intval(
+        $request->get_param(
+            'slot_id'
+        )
+    );
+
+    $result = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                n.note,
+                n.note_type,
+                n.visibility,
+                n.created_at,
+                u.ID as author_user_id,
+                u.display_name
+
+            FROM
+                {$table_notes} n
+
+            LEFT JOIN
+                {$usertable} u
+                ON n.author_user_id = u.ID
+
+            WHERE
+                n.slot_id = %d
+
+            ORDER BY
+                n.created_at
+            ",
+            $slot_id
+        )
+    );
+    $notes = [];
+
+    foreach ($result as $row) {
+
+        $notes[] = [
+            'author_monogram' => booking_calendar_get_monogram($row->display_name),
+
+            'created_at' => $row->created_at,
+
+            'extendedProps' => [
+                'slot_id' => $slot_id,
+                'note_type' => $row->note_type,
+                'author_name' => $row->display_name,
+                'author_user_id' => $row->author_user_id,
+                'visibility' => $row->visibility,
+                'note' => $row->note
+            ]
+        ];
+    }
+
+    return $notes;
+}
+
 function booking_calendar_add_booking_note(
     WP_REST_Request $request
 ) {

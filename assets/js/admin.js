@@ -114,6 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
                 const day_bookings_html = renderBookingCalendarDayBookings(dayBookings);
 
+                const notes = await getBookingCalendarSlotNotes(info.event.extendedProps.slot_id);
+                const slot_notes_html = renderBookingCalendarSlotNotes(notes);
                 const slotEnd = info.event.extendedProps.days > 1 ? ' - ' + info.event.extendedProps.end.toLocaleString().replace(' 00:00:00', '').replace(' 23:59:00', '').replaceAll('-', '. ') + '.' : '';
                 Swal.fire({
 
@@ -127,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             Status:
                             ${info.event.extendedProps.status}
                         </p>
+                        ${slot_notes_html}
                         ${bookings_html}
                         ${day_bookings_html}
                         ${bookednote}
@@ -329,6 +332,15 @@ async function getBookingCalendarNotes(slot_id) {
     return data;
 } 
 
+async function getBookingCalendarSlotNotes(slot_id) {
+    const response = await fetch(
+        hotelBooking.restUrl + 'calendar-slot-own-notes?slot_id=' + slot_id
+    );
+
+    const data = await response.json();
+    return data;
+}
+
 async function getBookingCalendarBookings(slot_id) {
     const response = await fetch(
         hotelBooking.restUrl + 'calendar-slot-bookings?slot_id=' + slot_id
@@ -471,6 +483,36 @@ function renderBookingCalendarDayBookings(bookings) {
                         data-customer_email="${escapeBookingCalendarHtml(field.extendedProps.customer_email)}"
                         data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
                         data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
+                    ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
+                </tr>`;
+    }).join('') + '</tbody></table>';
+}
+
+function renderBookingCalendarSlotNotes(notes) {
+    if (!notes.length) {
+        return '';
+    }
+
+    return `
+        <h3>Slot megjegyzések</h3>
+        <table class="booking-calendar-notes">
+            <thead>
+                <tr>
+                    <th>Monogram</th>
+                    <th style="width: 73%;">Megjegyzés</th>
+                    <th>Info</th>
+                </tr>
+            </thead>
+            <tbody>
+    ` + notes.map((field) => {
+        return `<tr>
+                    <td>${escapeBookingCalendarHtml(field.author_monogram)}</td>
+                    <td>${escapeBookingCalendarHtml(field.extendedProps.note)}</td>
+                    <td
+                        data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
+                        data-author_name="${escapeBookingCalendarHtml(field.extendedProps.author_name)}"
+                        data-note_type="${escapeBookingCalendarHtml(field.extendedProps.note_type)}"
+                        data-visibility="${escapeBookingCalendarHtml(field.extendedProps.visibility)}"
                     ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
                 </tr>`;
     }).join('') + '</tbody></table>';

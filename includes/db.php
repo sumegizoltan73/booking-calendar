@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('BOOKING_CALENDAR_DB_VERSION', '2.2');
+define('BOOKING_CALENDAR_DB_VERSION', '2.3');
 
 function booking_calendar_install() {
 
@@ -281,6 +281,40 @@ function booking_calendar_create_tables() {
 		) $charset_collate ;
     ";
 
+		$table_name8 =
+        $wpdb->prefix . 'hotel_booking_slot_notes';
+		$sql8 = "
+    CREATE TABLE $table_name8 (
+				id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+				slot_id BIGINT UNSIGNED NOT NULL,
+
+				author_user_id BIGINT UNSIGNED,
+
+				note_type VARCHAR(20) NOT NULL DEFAULT 'INTERNAL',
+
+				visibility VARCHAR(20) NOT NULL DEFAULT 'AGENT',
+
+				note TEXT NOT NULL,
+
+				created_at DATETIME NOT NULL,
+
+				PRIMARY KEY (id),
+
+				KEY idx_slot_notes_slot (
+						slot_id
+				),
+
+				KEY idx_slot_notes_author (
+						author_user_id
+				),
+
+				KEY idx_slot_notes_visibility (
+						visibility
+				)
+		) $charset_collate ;
+    ";
+
     require_once(
         ABSPATH . 'wp-admin/includes/upgrade.php'
     );
@@ -294,6 +328,7 @@ function booking_calendar_create_tables() {
     dbDelta($sql4);
     dbDelta($sql7);
     dbDelta($sql6);
+    dbDelta($sql8);
 
 		$wpdb->query(
         "ALTER TABLE $table_name DROP INDEX idx_room_date, ADD UNIQUE INDEX idx_room_date (slot_start_utc, slot_end_utc)"
