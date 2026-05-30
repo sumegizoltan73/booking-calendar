@@ -171,6 +171,8 @@ function booking_calendar_admin_assets($hook) {
         return;
     }
 
+    $plugin_file = dirname( __DIR__ ) . '/booking-calendar.php';
+
     wp_enqueue_script(
         'booking_calendar_fullcalendar',
         'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js',
@@ -218,37 +220,31 @@ function booking_calendar_admin_assets($hook) {
 
     wp_enqueue_style(
         'booking_calendar_admin-style',
-        plugin_dir_url(__FILE__) . '../assets/css/admin.css?nocache=' . date("Ymd_His"),
+        plugin_dir_url(__FILE__) . '../assets/css/admin.css',
         [],
         '1.0'
     );
 
     wp_enqueue_style(
         'booking_calendar-style',
-        plugin_dir_url(__FILE__) . '../assets/css/style.css?nocache=' . date("Ymd_His"),
+        plugin_dir_url(__FILE__) . '../assets/css/style.css',
         [],
         '1.0'
     );
 
     wp_enqueue_script(
         'booking-calendar-admin',
-        plugin_dir_url(__FILE__) . '../assets/js/admin.js?nocache=' . date("Ymd_His"),
-        array( 'wp-i18n', 'booking_calendar_fullcalendar', 'jquery' ),
-        filemtime(
-            plugin_dir_path(__FILE__) .
-            '../assets/js/admin.js'
-        ),
+        plugin_dir_url( $plugin_file ) . 'assets/js/admin.js',
+        array( 'wp-i18n', 'booking_calendar_fullcalendar', 'booking_calendar_fullcalendar-locales', 'jquery' ),
+        filemtime( dirname( __DIR__ ) . '/assets/js/admin.js' ),
         true
     );
 
     wp_enqueue_script(
         'booking-calendar-booking',
-        plugin_dir_url(__FILE__) . '../assets/js/booking.js?nocache=' . date("Ymd_His"),
+        plugin_dir_url( $plugin_file ) . 'assets/js/booking.js',
         array( 'wp-i18n', 'booking_calendar_fullcalendar', 'jquery' ),
-        filemtime(
-            plugin_dir_path(__FILE__) .
-            '../assets/js/booking.js'
-        ),
+        filemtime( dirname( __DIR__ ) . '/assets/js/booking.js' ),
         true
     );
 
