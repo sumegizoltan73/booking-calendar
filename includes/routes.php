@@ -158,6 +158,16 @@ function booking_calendar_register_routes() {
         [
             'methods'  => 'GET',
 
+            'callback' => 'booking_calendar_get_rooms_for_a_day'
+        ]
+    );
+    
+    register_rest_route(
+        'booking-calendar/v1',
+        '/calendar-slot-get_rooms_by_slot_id',
+        [
+            'methods'  => 'GET',
+
             'callback' => 'booking_calendar_get_rooms_for_slot'
         ]
     );

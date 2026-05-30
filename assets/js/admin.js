@@ -107,13 +107,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
                 const day_bookings_html = renderBookingCalendarDayBookings(dayBookings);
 
+                const slotEnd = info.event.extendedProps.days > 1 ? ' - ' + info.event.extendedProps.end.toLocaleString().replace(' 00:00:00', '').replace(' 23:59:00', '').replaceAll('-', '. ') + '.' : '';
                 Swal.fire({
 
                     title: 'Slot részletek',
 
                     html: `
                         <p>
-                            ${info.event.start.toLocaleString()}
+                            ${info.event.start.toLocaleString().replace(' 0:00:00', '')}${slotEnd}
                         </p>
                         <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
                             Status:
@@ -125,6 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${buttons}
                     `
                 });
+            },
+            dateClick: function(info) {
+                alert('Clicked on: ' + info.dateStr);
+                //info.dayEl.style.backgroundColor = 'red';
             }
         });
         calendar.render();

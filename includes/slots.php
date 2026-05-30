@@ -224,7 +224,8 @@ function booking_calendar_calendar_events(
         "
         SELECT
                     s.*,
-                    'BLOCKED' as state
+                    'BLOCKED' as state,
+                    DATEDIFF( s.slot_end_utc, s.slot_start_utc) as days
                 FROM
                     {$table} s
 
@@ -234,7 +235,8 @@ function booking_calendar_calendar_events(
         UNION ALL
         SELECT
                     s.*,
-                    'FREE' as state
+                    'FREE' as state,
+                    DATEDIFF( s.slot_end_utc, s.slot_start_utc) as days
                 FROM
                     {$table} s
 
@@ -252,7 +254,8 @@ function booking_calendar_calendar_events(
         UNION ALL
         SELECT
                     s.*,
-                    'BOOKED' as state
+                    'BOOKED' as state,
+                    DATEDIFF( s.slot_end_utc, s.slot_start_utc) as days
                 FROM
                     {$table} s
 
@@ -278,7 +281,7 @@ function booking_calendar_calendar_events(
         
         $rooms_str = '';
         if ($row->state == 'BOOKED' || $row->state == 'BLOCKED') {
-            $items = booking_calendar_get_rooms($row->id);
+            $items = booking_calendar_get_rooms_by_slot_id($row->id);
             $rooms = [];
             foreach ($items as $rooms_row) {
                 if ($rooms_row['status'] == 'BOOKED') {
@@ -292,6 +295,8 @@ function booking_calendar_calendar_events(
         }
 
         
+        $days = $row->days;
+
         $events[] = [
             'title' => $rooms_str,
 
@@ -306,6 +311,8 @@ function booking_calendar_calendar_events(
             'extendedProps' => [
                 'slot_id' => $row->id,
                 'status' => $row->state,
+                'end' => $row->slot_end_utc,
+                'days' => $days,
                 'in_blocked_status' => $row->status == 'BLOCKED' && $rooms_str != '' ? 'BOOKED' : 'FREE'
             ]
         ];

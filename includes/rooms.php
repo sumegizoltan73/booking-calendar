@@ -99,6 +99,91 @@ function booking_calendar_get_rooms(
         $wpdb->prefix . 'hotel_booking_calendar_rooms';
     $table_mapping =
         $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+    $table_slots =
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
+    
+    $result = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+        SELECT
+            IF(booked.room_id IS NULL, 'FREE', 'BOOKED') as status,
+            r.id,
+            r.room_no,
+            r.is_active,
+            r.capacity,
+            %d as slot_id,
+            booked.slot_id as booked_slot_id
+        FROM
+            {$table_rooms} r
+        LEFT JOIN (
+            SELECT DISTINCT
+                m.room_id, selected_slot.id as slot_id
+            FROM
+                {$table_slots} selected_slot
+            JOIN
+                {$table_slots} day_slot
+                ON day_slot.slot_start_utc >= DATE(selected_slot.slot_start_utc)
+                AND day_slot.slot_start_utc < DATE(selected_slot.slot_start_utc) + INTERVAL 1 DAY
+            JOIN
+                {$table_mapping} m
+                ON m.slot_id = day_slot.id
+            WHERE
+                selected_slot.id = %d
+        ) booked
+            ON booked.room_id = r.id
+        ORDER BY status, id
+        ",
+            $slot_id,
+            $slot_id
+        )
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'room_no' => $row->room_no,
+
+            'status' => $row->status,
+
+            'capacity' => intval($row->capacity),
+
+            'is_active' => intval($row->is_active),
+
+            'slot_id' => intval($row->slot_id),
+
+            'color' => booking_calendar_get_slot_color($row->status)
+        ];
+    }
+
+    return $items;
+}
+function booking_calendar_get_rooms_for_a_day(
+    WP_REST_Request $request
+) {
+
+    $slot_id = intval($request->get_param(
+            'slot_id'
+        )
+    );
+    
+    $items = booking_calendar_get_rooms($slot_id);
+
+    return $items;
+}
+
+function booking_calendar_get_rooms_by_slot_id(
+    $slot_id
+) {
+    global $wpdb;
+    
+    $items = [];
+
+    $table_rooms =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
+    $table_mapping =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
     
     $result = $wpdb->get_results(
         "
@@ -167,7 +252,7 @@ function booking_calendar_get_rooms_for_slot(
         )
     );
     
-    $items = booking_calendar_get_rooms($slot_id);
+    $items = booking_calendar_get_rooms_by_slot_id($slot_id);
 
     return $items;
 }
