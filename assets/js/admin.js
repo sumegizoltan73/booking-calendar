@@ -277,6 +277,15 @@ async function getBookingCalendarEventTooltipDetails(event) {
 }
 
 function renderBookingCalendarEventTooltip(details) {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const titleText = __('Title', 'booking-calendar');
+    const statusText = __('Status', 'booking-calendar');
+    const customerText = __('Customer', 'booking-calendar');
+    const phoneText = __('Phone', 'booking-calendar');
+    const notesText = __('Notes', 'booking-calendar');
+    const slotNotesText = __('Slot notes', 'booking-calendar');
+
     const tooltip = document.createElement('div');
     tooltip.className = 'booking-calendar-event-tooltip';
     tooltip.style.cssText = [
@@ -293,20 +302,20 @@ function renderBookingCalendarEventTooltip(details) {
         'pointer-events:none'
     ].join(';');
 
-    appendBookingCalendarTooltipLine(tooltip, 'Title', details.title);
-    appendBookingCalendarTooltipLine(tooltip, 'Status', details.status);
+    appendBookingCalendarTooltipLine(tooltip, titleText, details.title);
+    appendBookingCalendarTooltipLine(tooltip, statusText, details.status);
 
     details.bookings.forEach((booking) => {
         appendBookingCalendarTooltipLine(
             tooltip,
-            'Customer',
+            customerText,
             booking.extendedProps.customer_monogram + ' (' + booking.extendedProps.rooms + ')' + ' - ' + booking.extendedProps.customer_name,
             true, 
             false
         );
         appendBookingCalendarTooltipLine(
             tooltip,
-            'Phone',
+            phoneText,
             booking.extendedProps.customer_phone,
             false,
             true
@@ -319,7 +328,7 @@ function renderBookingCalendarEventTooltip(details) {
 
     if (notes.length) {
         const label = document.createElement('div');
-        label.textContent = 'Notes:';
+        label.textContent = notesText + ':';
         label.style.fontWeight = '700';
         label.style.marginTop = '4px';
         tooltip.appendChild(label);
@@ -345,7 +354,7 @@ function renderBookingCalendarEventTooltip(details) {
 
     if (slotNotes.length) {
         const label = document.createElement('div');
-        label.textContent = 'Slot notes:';
+        label.textContent = slotNotesText + ':';
         label.style.fontWeight = '700';
         label.style.marginTop = '4px';
         tooltip.appendChild(label);
@@ -431,13 +440,21 @@ async function getBookingCalendarDayBookings(date, exclude_slot_id) {
 }
 
 async function addBookingCalendarNote(booking_id) {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const addNoteText = __('Add Note', 'booking-calendar');
+    const notesText = __('Notes', 'booking-calendar');
+    const noteRequiredText = __('The Note field is required', 'booking-calendar');
+    const noteSuccessText = __('Note is added successfully', 'booking-calendar');
+    const errorText = __('Error', 'booking-calendar');
+
     const { value: note } = await Swal.fire({
-        title: 'Megjegyzés hozzáadása',
+        title: addNoteText,
         input: 'textarea',
-        inputPlaceholder: 'Megjegyzés',
+        inputPlaceholder: notesText,
         showCancelButton: true,
         allowEscapeKey: true,
-        inputValidator: (value) => value ? null : 'A megjegyzés mező kötelező.'
+        inputValidator: (value) => value ? null : noteRequiredText
     });
 
     if (!note) {
@@ -462,8 +479,8 @@ async function addBookingCalendarNote(booking_id) {
 
     if (!data.success) {
         Swal.fire({
-            title: 'Hiba!',
-            text: data.message || 'A megjegyzés hozzáadása sikertelen.',
+            title: errorText,
+            text: data.message || noteSuccessText,
             icon: 'error'
         });
         return;
@@ -485,9 +502,14 @@ function toggleBookingCalendarSlotNoteForm(slot_id) {
 async function saveBookingCalendarSlotNote(slot_id) {
     const textarea = document.getElementById('booking-calendar-slot-note-' + slot_id);
     const note = textarea ? textarea.value.trim() : '';
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const noteRequiredText = __('The Note field is required', 'booking-calendar');
+    const noteSuccessText = __('Note is added successfully', 'booking-calendar');
+    const errorText = __('Error', 'booking-calendar');
 
     if (!note) {
-        Swal.showValidationMessage('A megjegyzés mező kötelező.');
+        Swal.showValidationMessage(noteRequiredText);
         return;
     }
 
@@ -509,8 +531,8 @@ async function saveBookingCalendarSlotNote(slot_id) {
 
     if (!data.success) {
         Swal.fire({
-            title: 'Hiba!',
-            text: data.message || 'A megjegyzés hozzáadása sikertelen.',
+            title: errorText,
+            text: data.message || noteSuccessText,
             icon: 'error'
         });
         return;
@@ -522,8 +544,14 @@ async function saveBookingCalendarSlotNote(slot_id) {
 }
 
 async function deleteBookingCalendarBooking(booking_id) {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const questionText = __('Really delete this booking?', 'booking-calendar');
+    const noteSuccessText = __('Note is added successfully', 'booking-calendar');
+    const errorText = __('Error', 'booking-calendar');
+
     const result = await Swal.fire({
-        title: 'Biztosan törölni szeretné a foglalást?',
+        title: questionText,
         icon: 'question',
         showCancelButton: true,
         allowEscapeKey: true
@@ -550,8 +578,8 @@ async function deleteBookingCalendarBooking(booking_id) {
 
     if (!data.success) {
         Swal.fire({
-            title: 'Hiba!',
-            text: data.message || 'A foglalás törlése sikertelen.',
+            title: errorText,
+            text: data.message || noteSuccessText,
             icon: 'error'
         });
         return;
@@ -575,15 +603,23 @@ function renderBookingCalendarDayBookings(bookings) {
         return '';
     }
 
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const otherBookingsText = __('Other bookings on this day', 'booking-calendar');
+    const nameText = __('Name', 'booking-calendar');
+    const phoneText = __('Phone', 'booking-calendar');
+    const roomsText = __('Rooms', 'booking-calendar');
+    const infoText = __('Info', 'booking-calendar');
+
     return `
-        <h3>További foglalás ezen a napon még</h3>
+        <h3>${otherBookingsText}</h3>
         <table class="booking-calendar-details">
             <thead>
                 <tr>
-                    <th>Név</th>
-                    <th>Telefonszám</th>
-                    <th style="width: 33%;">Szobák</th>
-                    <th>Info</th>
+                    <th>${nameText}</th>
+                    <th>${phoneText}</th>
+                    <th style="width: 33%;">${roomsText}</th>
+                    <th>${infoText}</th>
                 </tr>
             </thead>
             <tbody>
@@ -607,14 +643,20 @@ function renderBookingCalendarSlotNotes(notes) {
         return '';
     }
 
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const slotNotesText = __('Slot notes', 'booking-calendar');
+    const infoText = __('Info', 'booking-calendar');
+    const monographText = __('Monograph', 'booking-calendar');
+
     return `
-        <h3>Slot megjegyzések</h3>
+        <h3>${slotNotesText}</h3>
         <table class="booking-calendar-notes">
             <thead>
                 <tr>
-                    <th>Monogram</th>
-                    <th style="width: 73%;">Megjegyzés</th>
-                    <th>Info</th>
+                    <th>${monographText}</th>
+                    <th style="width: 73%;">${slotNotesText}</th>
+                    <th>${infoText}</th>
                 </tr>
             </thead>
             <tbody>
@@ -633,14 +675,19 @@ function renderBookingCalendarSlotNotes(notes) {
 }
 
 function renderBookingCalendarSlotNoteForm(slot_id) {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const notesText = __('Notes', 'booking-calendar');
+    const saveText = __('Save', 'booking-calendar');
+
     return `
         <p>
-            <button class="button" type="button" onclick="toggleBookingCalendarSlotNoteForm(${slot_id})">+Megjegyzés</button>
+            <button class="button" type="button" onclick="toggleBookingCalendarSlotNoteForm(${slot_id})">+${notesText}</button>
         </p>
         <div id="booking-calendar-slot-note-form-${slot_id}" style="display:none; margin-bottom: 12px;">
-            <textarea id="booking-calendar-slot-note-${slot_id}" rows="3" style="width:100%; box-sizing:border-box;" placeholder="Megjegyzés"></textarea>
+            <textarea id="booking-calendar-slot-note-${slot_id}" rows="3" style="width:100%; box-sizing:border-box;" placeholder="${notesText}"></textarea>
             <p>
-                <button class="button button-primary" type="button" onclick="saveBookingCalendarSlotNote(${slot_id})">Mentés</button>
+                <button class="button button-primary" type="button" onclick="saveBookingCalendarSlotNote(${slot_id})">${saveText}</button>
             </p>
         </div>
     `;

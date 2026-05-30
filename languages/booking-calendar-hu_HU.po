@@ -148,3 +148,43 @@ msgstr "+M"
 #: admin.js:12
 msgid "Monograph"
 msgstr "Monogram"
+
+#: admin.js:12
+msgid "State"
+msgstr "Állapot"
+
+#: admin.js:12
+msgid "Customer"
+msgstr "Vendég"
+
+#: admin.js:12
+msgid "Slot notes"
+msgstr "Slot megjegyzések"
+
+#: admin.js:12
+msgid "Add Note"
+msgstr "Megjegyzés hozzáadása"  
+
+#: admin.js:12
+msgid "The Note field is required"
+msgstr "A megjegyzés mező kötelező."  
+
+#: admin.js:12
+msgid "Note is added successfully"
+msgstr "A megjegyzés sikeresen hozzáadva."
+
+#: admin.js:12
+msgid "Really delete this booking?"
+msgstr "Biztosan törölni szeretné a foglalást?"
+
+#: admin.js:12
+msgid "Booking deleted successfully"
+msgstr "A foglalás sikeresen törölve" 
+
+#: admin.js:12
+msgid "Error deleting booking"
+msgstr "Hiba a foglalás törlése közben"
+
+#: admin.js:12
+msgid "Save"
+msgstr "Mentés"

@@ -148,3 +148,43 @@ msgstr "+Notes"
 #: admin.js:12
 msgid "Monograph"
 msgstr "Monograph"
+
+#: admin.js:12
+msgid "State"
+msgstr "State"
+
+#: admin.js:12
+msgid "Customer"
+msgstr "Customer"
+
+#: admin.js:12
+msgid "Slot notes"
+msgstr "Slot notes"
+
+#: admin.js:12
+msgid "Add Note"
+msgstr "Add Note"
+
+#: admin.js:12
+msgid "The Note field is required"
+msgstr "The Note field is required"
+
+#: admin.js:12
+msgid "Note is added successfully"
+msgstr "The note is added successfully"
+
+#: admin.js:12
+msgid "Really delete this booking?"
+msgstr "Really delete this booking?"
+
+#: admin.js:12
+msgid "Booking deleted successfully"
+msgstr "The booking is deleted successfully"
+
+#: admin.js:12
+msgid "Error deleting booking"
+msgstr "Error deleting booking"
+
+#: admin.js:12
+msgid "Save"
+msgstr "Save"
