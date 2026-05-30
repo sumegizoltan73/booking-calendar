@@ -135,6 +135,24 @@ function booking_calendar_admin_page() {
             Egyedi Slotok generálása
         </button>
 
+        <span class="booking-calendar-search">
+            <span class="dashicons dashicons-search"></span>
+            <input
+                type="search"
+                id="booking-calendar-booking-search"
+                placeholder="Keresés név, telefon, megjegyzés alapján"
+                oninput="updateBookingCalendarSearch()"
+            />
+            <button
+                type="button"
+                class="button"
+                id="booking-calendar-search-results-button"
+                onclick="showBookingCalendarSearchResults()"
+            >
+                Találatok (0 db)
+            </button>
+        </span>
+
         <div id="booking-calendar-admin-calendar"></div>
 
     </div>

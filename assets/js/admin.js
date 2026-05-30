@@ -14,9 +14,17 @@ document.addEventListener('DOMContentLoaded', function() {
           },
           events: async function(fetchInfo, successCallback) {
             const roomId = document.getElementById('room-id').value;
+            const search = getBookingCalendarSearchTerm();
+            const params = new URLSearchParams({
+                room_id: roomId
+            });
+
+            if (search) {
+                params.set('search', search);
+            }
 
               const response = await fetch(
-                  hotelBooking.restUrl + 'calendar-events?room_id=' + roomId
+                  hotelBooking.restUrl + 'calendar-events?' + params.toString()
               );
 
               const data = await response.json();
@@ -148,6 +156,9 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
 const bookingCalendarTooltipCache = new Map();
+let bookingCalendarSearchTimer = null;
+let bookingCalendarSearchRequest = 0;
+let bookingCalendarSearchResults = [];
 
 function addBookingCalendarEventTooltip(info) {
     const slotId = info.event.extendedProps.slot_id;
@@ -827,6 +838,95 @@ function escapeBookingCalendarHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
+function getBookingCalendarSearchTerm() {
+    const input = document.getElementById('booking-calendar-booking-search');
+
+    return input ? input.value.trim() : '';
+}
+
+function updateBookingCalendarSearch() {
+    window.clearTimeout(bookingCalendarSearchTimer);
+    bookingCalendarSearchTimer = window.setTimeout(refreshBookingCalendarSearch, 250);
+}
+
+async function refreshBookingCalendarSearch() {
+    const search = getBookingCalendarSearchTerm();
+    const roomId = document.getElementById('room-id').value;
+    const button = document.getElementById('booking-calendar-search-results-button');
+    const requestId = ++bookingCalendarSearchRequest;
+
+    bookingCalendarTooltipCache.clear();
+    window.hotelBookingCalendar.refetchEvents();
+
+    if (!search) {
+        bookingCalendarSearchResults = [];
+        if (button) {
+            button.textContent = 'Találatok (0 db)';
+        }
+        renderBookingCalendarSearchResultsModal();
+        return;
+    }
+
+    const params = new URLSearchParams({
+        search,
+        room_id: roomId
+    });
+    const response = await fetch(
+        hotelBooking.restUrl + 'booking-search-results?' + params.toString()
+    );
+    const data = await response.json();
+
+    if (requestId !== bookingCalendarSearchRequest) {
+        return;
+    }
+
+    bookingCalendarSearchResults = Array.isArray(data) ? data : [];
+    if (button) {
+        button.textContent = 'Találatok (' + bookingCalendarSearchResults.length + ' db)';
+    }
+    renderBookingCalendarSearchResultsModal();
+}
+
+function showBookingCalendarSearchResults() {
+    Swal.fire({
+        title: 'Találatok (' + bookingCalendarSearchResults.length + ' db)',
+        html: '<div id="booking-calendar-search-results-modal">' + getBookingCalendarSearchResultsHtml() + '</div>',
+        showConfirmButton: true,
+        confirmButtonText: 'Bezár'
+    });
+}
+
+function renderBookingCalendarSearchResultsModal() {
+    const container = document.getElementById('booking-calendar-search-results-modal');
+
+    if (!container) {
+        return;
+    }
+
+    const title = document.querySelector('.swal2-title');
+    if (title) {
+        title.textContent = 'Találatok (' + bookingCalendarSearchResults.length + ' db)';
+    }
+    container.innerHTML = getBookingCalendarSearchResultsHtml();
+}
+
+function getBookingCalendarSearchResultsHtml() {
+    if (!getBookingCalendarSearchTerm() || !bookingCalendarSearchResults.length) {
+        return '<p class="booking-calendar-search-no-results">Nincs találat</p>';
+    }
+
+    return bookingCalendarSearchResults.map((item) => {
+        return `
+            <div class="booking-calendar-search-result">
+                <div><strong>Szobaszám:</strong> ${escapeBookingCalendarHtml(item.rooms)}</div>
+                <div><strong>Ügyfél:</strong> ${escapeBookingCalendarHtml(item.customer_name)}</div>
+                <div><strong>Telefonszám:</strong> ${escapeBookingCalendarHtml(item.customer_phone)}</div>
+                <div><strong>Megjegyzés:</strong> ${escapeBookingCalendarHtml(item.notes)}</div>
+            </div>
+        `;
+    }).join('');
+}
+
 async function removeConfirmedRoom(e, id) {
     const url =
         hotelBooking.restUrl +
@@ -993,5 +1093,5 @@ async function addRoomPopUp() {
 }
 
 function refreshBookingCalendarCalendar(){
-    window.hotelBookingCalendar.refetchEvents();
+    refreshBookingCalendarSearch();
 }

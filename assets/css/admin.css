@@ -7,3 +7,28 @@
 #booking-calendar-rooms-repeater tr.inactive td {
   color: lightgray;
 }
+.booking-calendar-search {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.booking-calendar-search .dashicons {
+  color: #50575e;
+}
+#booking-calendar-booking-search {
+  min-width: 320px;
+}
+.booking-calendar-search-result {
+  border-bottom: 1px solid #dcdcde;
+  padding: 10px 0;
+  text-align: left;
+}
+.booking-calendar-search-result:first-child {
+  padding-top: 0;
+}
+.booking-calendar-search-no-results {
+  margin: 0;
+  text-align: left;
+}

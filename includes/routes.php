@@ -232,4 +232,14 @@ function booking_calendar_register_routes() {
             'callback' => 'booking_calendar_get_rooms_for_slot'
         ]
     );
+
+    register_rest_route(
+        'booking-calendar/v1',
+        '/booking-search-results',
+        [
+            'methods'  => 'GET',
+
+            'callback' => 'booking_calendar_booking_search_results'
+        ]
+    );
 }

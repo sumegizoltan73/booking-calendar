@@ -213,12 +213,65 @@ function booking_calendar_calendar_events(
         $wpdb->prefix . 'hotel_booking_calendar_slots';
     $table_bookings =
         $wpdb->prefix . 'hotel_booking_bookings';
+    $table_notes =
+        $wpdb->prefix . 'hotel_booking_notes';
+    $table_mappings =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
 
     $room_id = intval(
         $request->get_param(
             'room_id'
         )
     );
+    $search = sanitize_text_field(
+        $request->get_param(
+            'search'
+        )
+    );
+    $search_like = '%' . $wpdb->esc_like($search) . '%';
+    $booking_search_exists = "";
+    $free_search_condition = "";
+
+    if ($search !== '') {
+        $booking_search_exists = $wpdb->prepare(
+            "
+                    AND EXISTS (
+                        SELECT
+                            b_search.id
+                        FROM
+                            {$table_bookings} b_search
+                        LEFT JOIN
+                            {$table_notes} n_search
+                            ON n_search.booking_id = b_search.id
+                        WHERE
+                            b_search.slot_id = s.id
+                            AND (
+                                b_search.customer_name LIKE %s
+                                OR b_search.customer_phone LIKE %s
+                                OR n_search.note LIKE %s
+                            )
+                            AND (
+                                %d = 0
+                                OR EXISTS (
+                                    SELECT
+                                        m_search.id
+                                    FROM
+                                        {$table_mappings} m_search
+                                    WHERE
+                                        m_search.booking_id = b_search.id
+                                        AND m_search.room_id = %d
+                                )
+                            )
+                    )
+            ",
+            $search_like,
+            $search_like,
+            $search_like,
+            $room_id,
+            $room_id
+        );
+        $free_search_condition = "AND 1 = 0";
+    }
 
     $result = $wpdb->get_results(
         "
@@ -232,6 +285,7 @@ function booking_calendar_calendar_events(
                 WHERE
                         s.slot_start_utc >= CURDATE()
                     AND s.status = 'BLOCKED'
+                    {$booking_search_exists}
         UNION ALL
         SELECT
                     s.*,
@@ -243,6 +297,7 @@ function booking_calendar_calendar_events(
                 WHERE
                         s.slot_start_utc >= CURDATE()
                     AND s.status = 'FREE'
+                    {$free_search_condition}
                     AND NOT EXISTS (
                         SELECT
                             b.id
@@ -262,6 +317,7 @@ function booking_calendar_calendar_events(
                 WHERE
                         s.slot_start_utc >= CURDATE()
                     AND s.status = 'FREE'
+                    {$booking_search_exists}
                     AND EXISTS (
                         SELECT
                             b.id
@@ -1181,4 +1237,100 @@ function booking_calendar_day_bookings(
     }
 
     return $bookings;
+}
+
+function booking_calendar_booking_search_results(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    $table_slots =
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
+    $table_bookings =
+        $wpdb->prefix . 'hotel_booking_bookings';
+    $table_notes =
+        $wpdb->prefix . 'hotel_booking_notes';
+    $table_mappings =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+    $table_rooms =
+        $wpdb->prefix . 'hotel_booking_calendar_rooms';
+
+    $search = sanitize_text_field(
+        $request->get_param(
+            'search'
+        )
+    );
+    $room_id = intval(
+        $request->get_param(
+            'room_id'
+        )
+    );
+
+    if ($search === '') {
+        return [];
+    }
+
+    $search_like = '%' . $wpdb->esc_like($search) . '%';
+    $result = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                b.id,
+                b.customer_name,
+                b.customer_phone,
+                GROUP_CONCAT(DISTINCT r.room_no ORDER BY r.room_no SEPARATOR ',') as rooms,
+                GROUP_CONCAT(DISTINCT n.note SEPARATOR '\n') as notes
+
+            FROM
+                {$table_bookings} b
+            JOIN
+                {$table_slots} s
+                ON b.slot_id = s.id
+            LEFT JOIN
+                {$table_notes} n
+                ON n.booking_id = b.id
+            LEFT JOIN
+                {$table_mappings} m
+                ON m.booking_id = b.id
+            LEFT JOIN
+                {$table_rooms} r
+                ON m.room_id = r.id
+
+            WHERE
+                s.slot_start_utc >= CURDATE()
+                AND (
+                    b.customer_name LIKE %s
+                    OR b.customer_phone LIKE %s
+                    OR n.note LIKE %s
+                )
+                AND (%d = 0 OR m.room_id = %d)
+
+            GROUP BY
+                b.id,
+                b.customer_name,
+                b.customer_phone
+
+            ORDER BY
+                s.slot_start_utc,
+                b.customer_name
+            ",
+            $search_like,
+            $search_like,
+            $search_like,
+            $room_id,
+            $room_id
+        )
+    );
+    $items = [];
+
+    foreach ($result as $row) {
+        $items[] = [
+            'booking_id' => intval($row->id),
+            'rooms' => $row->rooms,
+            'customer_name' => $row->customer_name,
+            'customer_phone' => $row->customer_phone,
+            'notes' => $row->notes
+        ];
+    }
+
+    return $items;
 }
