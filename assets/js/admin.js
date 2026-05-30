@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const phoneText = __('Phone', 'booking-calendar');
         const roomsText = __('Rooms', 'booking-calendar');
         const infoText = __('Info', 'booking-calendar');
-        const plusNotesText = __('Plus Notes', 'booking-calendar');
+        const plusNotesText = __('Notes', 'booking-calendar');
         const notesText = __('Notes', 'booking-calendar');
         const deleteText = __('Delete', 'booking-calendar');
         const monographText = __('Monograph', 'booking-calendar');
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('booking-calendar-admin-calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridWeek',
-          locale: 'hu',
+          locale: hotelBooking.locale || 'en',
           headerToolbar: {
               center: 'multiMonthYear,dayGridMonth,timeGridWeek,dayGridDay' // buttons for switching between views
           },
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <th>${phoneText}</th>
                                     <th style="width: 33%;">${roomsText}</th>
                                     <th>${infoText}</th>
-                                    <th>${plusNotesText}</th>
+                                    <th>+${plusNotesText}</th>
                                     <th>${deleteText}</th>
                                 </tr>
                             </thead>
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
                                         data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
                                     ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
-                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">${plusNotesText}</button>` : ''}</td>
+                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">+${plusNotesText}</button>` : ''}</td>
                                     <td>${canManageBookingActions ? `<button type="button" onclick="deleteBookingCalendarBooking(${field.extendedProps.booking_id})">${deleteText}</button>` : ''}</td>
                                 </tr>`;
                     }).join('') + '</tbody></table>';
@@ -741,10 +741,16 @@ async function generateUniqueBookingCalendarSlots(room,
 
 async function generateUniqueBookingCalendarSlotsPopUp() {
     const room_select_html = document.getElementById('room-id').innerHTML;
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const generateSlotsText = __('Generate Slots', 'booking-calendar');
+    const oneDayText = __('One Day', 'booking-calendar');
+    const errorText = __('Error', 'booking-calendar');
+    const fillText = __('Fill all fields', 'booking-calendar');
 
     const { value: formValues } = await Swal.fire({
 
-        title: 'Slot generálás',
+        title: generateSlotsText,
 
         html: `
             <select id="room-id-for-slot-generate">
@@ -756,7 +762,7 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
             />
 
             <select id="slot-duration">
-                <option value="1440">24 óra</option>
+                <option value="1440">${oneDayText}</option>
             </select>
         `,
 
@@ -786,6 +792,9 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
         }
     });
 
+    if (!formValues) {
+        return;
+    }
     const [room, range, duration, isValid] = formValues;
     if (isValid) { 
         // generate
@@ -795,8 +804,8 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
     }
     else {
         Swal.fire({
-            title: 'Hiba!',
-            text: 'Minden mezőt töltsön ki!',
+            title: errorText,
+            text: fillText,
             icon: 'error'
         });
     }
@@ -859,15 +868,26 @@ function toggleBookingCalendarBookingDetails(button) {
         return;
     }
 
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const monographeText = __('Monographe', 'booking-calendar');
+    const emailText = __('Email', 'booking-calendar');
+    const createdText = __('Created At', 'booking-calendar');
+    const createdByText = __('Created By', 'booking-calendar');
+    const authorText = __('Author', 'booking-calendar');
+    const customerNameText = __('Customer Name', 'booking-calendar');
+    const noteTypeText = __('Type of Note', 'booking-calendar');
+    const visibilityText = __('Visibility', 'booking-calendar');
+
     const labels = {
-        monogram: 'Monogram',
-        customer_email: 'E-mail',
-        created_at: 'Létrehozva',
-        created_by: 'Létrehozta',
-        author_name: 'Szerző',
-        customer_name: 'Ügyfél neve',
-        note_type: 'Megjegyzés típusa',
-        visibility: 'Láthatóság'
+        monogram: monographeText,
+        customer_email: emailText,
+        created_at: createdText,
+        created_by: createdByText,
+        author_name: authorText,
+        customer_name: customerNameText,
+        note_type: noteTypeText,
+        visibility: visibilityText
     };
 
     const details = cell.getAttributeNames()
@@ -917,14 +937,17 @@ async function refreshBookingCalendarSearch() {
     const roomId = document.getElementById('room-id').value;
     const button = document.getElementById('booking-calendar-search-results-button');
     const requestId = ++bookingCalendarSearchRequest;
+    const { __, _x, _n, sprintf } = wp.i18n;
 
+    const searchResultsText = __('Search results', 'booking-calendar');
+    
     bookingCalendarTooltipCache.clear();
     window.hotelBookingCalendar.refetchEvents();
 
     if (!search) {
         bookingCalendarSearchResults = [];
         if (button) {
-            button.textContent = 'Találatok (0 db)';
+            button.textContent = searchResultsText + ' (0 db)';
         }
         renderBookingCalendarSearchResultsModal();
         return;
@@ -945,14 +968,18 @@ async function refreshBookingCalendarSearch() {
 
     bookingCalendarSearchResults = Array.isArray(data) ? data : [];
     if (button) {
-        button.textContent = 'Találatok (' + bookingCalendarSearchResults.length + ' db)';
+        button.textContent = searchResultsText + ' (' + bookingCalendarSearchResults.length + ' db)';
     }
     renderBookingCalendarSearchResultsModal();
 }
 
 function showBookingCalendarSearchResults() {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const searchResultsText = __('Search results', 'booking-calendar');
+
     Swal.fire({
-        title: 'Találatok (' + bookingCalendarSearchResults.length + ' db)',
+        title: searchResultsText + ' (' + bookingCalendarSearchResults.length + ' db)',
         html: '<div id="booking-calendar-search-results-modal">' + getBookingCalendarSearchResultsHtml() + '</div>',
         showConfirmButton: true,
         confirmButtonText: 'Bezár'
@@ -961,6 +988,9 @@ function showBookingCalendarSearchResults() {
 
 function renderBookingCalendarSearchResultsModal() {
     const container = document.getElementById('booking-calendar-search-results-modal');
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const searchResultsText = __('Search results', 'booking-calendar');
 
     if (!container) {
         return;
@@ -968,23 +998,31 @@ function renderBookingCalendarSearchResultsModal() {
 
     const title = document.querySelector('.swal2-title');
     if (title) {
-        title.textContent = 'Találatok (' + bookingCalendarSearchResults.length + ' db)';
+        title.textContent = searchResultsText + ' (' + bookingCalendarSearchResults.length + ' db)';
     }
     container.innerHTML = getBookingCalendarSearchResultsHtml();
 }
 
 function getBookingCalendarSearchResultsHtml() {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const noResultsFoundText = __('No Results Found', 'booking-calendar');
+    const roomNumberText = __('Room Number', 'booking-calendar');
+    const customerNameText = __('Customer', 'booking-calendar');
+    const customerPhoneText = __('Phone', 'booking-calendar');
+    const notesText = __('Notes', 'booking-calendar');
+
     if (!getBookingCalendarSearchTerm() || !bookingCalendarSearchResults.length) {
-        return '<p class="booking-calendar-search-no-results">Nincs találat</p>';
+        return '<p class="booking-calendar-search-no-results">' + noResultsFoundText + '</p>';
     }
 
     return bookingCalendarSearchResults.map((item) => {
         return `
             <div class="booking-calendar-search-result">
-                <div><strong>Szobaszám:</strong> ${escapeBookingCalendarHtml(item.rooms)}</div>
-                <div><strong>Ügyfél:</strong> ${escapeBookingCalendarHtml(item.customer_name)}</div>
-                <div><strong>Telefonszám:</strong> ${escapeBookingCalendarHtml(item.customer_phone)}</div>
-                <div><strong>Megjegyzés:</strong> ${escapeBookingCalendarHtml(item.notes)}</div>
+                <div><strong>${roomNumberText}:</strong> ${escapeBookingCalendarHtml(item.rooms)}</div>
+                <div><strong>${customerNameText}:</strong> ${escapeBookingCalendarHtml(item.customer_name)}</div>
+                <div><strong>${customerPhoneText}:</strong> ${escapeBookingCalendarHtml(item.customer_phone)}</div>
+                <div><strong>${notesText}:</strong> ${escapeBookingCalendarHtml(item.notes)}</div>
             </div>
         `;
     }).join('');
@@ -1022,8 +1060,12 @@ async function removeConfirmedRoom(e, id) {
 }
 
 async function removeRoom(e, id) {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const questionText = __('Really delete this room?', 'booking-calendar');
+
     Swal.fire({
-        title: "Biztosan törölni szeretné a szobát?",
+        title: questionText,
         icon: "question",
         showCancelButton: true,
         allowEscapeKey: true,
@@ -1041,6 +1083,11 @@ async function addRoom(room_no,
     const url =
         hotelBooking.restUrl +
         'add-room';
+
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const activeText = __('Active', 'booking-calendar');
+    const inactiveText = __('Inactive', 'booking-calendar');
 
     const response = await fetch(
         url,
@@ -1073,7 +1120,7 @@ async function addRoom(room_no,
                 <td>${room_no}</td>
                 <td>${name}</td>
                 <td class="center">${capacity}</td>
-                <td>${is_active ? 'AKTÍV' : 'INAKTÍV'}</td>
+                <td>${is_active ? activeText : inactiveText}</td>
                 <td><button type="button" class="button remove-item" onclick="removeRoom(event, ${data.id})">–</button></td>
             </tr>
         `;
@@ -1083,36 +1130,46 @@ async function addRoom(room_no,
 }
 
 async function addRoomPopUp() {
-    const room_no_str = "Szobaszám";
-    const name_str = "Szoba neve";
-    const capacity_str = "Kapacitás";
-    const is_active_str = "Aktív";
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const roomNumberText = __('Room Number', 'booking-calendar');
+    const roomNameText = __('Room Name', 'booking-calendar');
+    const capacityText = __('Capacity', 'booking-calendar');
+    const isActiveText = __('Active', 'booking-calendar');
+    const errorText = __('Error', 'booking-calendar');
+    const allFieldsText = __('Fill all fields', 'booking-calendar');
+    const addText = __('Adding Room', 'booking-calendar');
 
     const { value: formValues } = await Swal.fire({
 
-        title: 'Szoba hozzáadása',
+        title: addText,
 
         html: `
             <div class="booking-calendar-item">
                 <input type="text"
+                    class="swal2-input"
                     id="booking-calendar_room_no"
                     value=""
-                    placeholder="${room_no_str}" />
+                    placeholder="${roomNumberText}" />
 
                 <input type="text"
+                    class="swal2-input"
                     id="booking-calendar_room_name"
                     value=""
-                    placeholder="${name_str}" />
+                    placeholder="${roomNameText}" />
 
                 <input type="number"
+                    class="swal2-input"
                     id="booking-calendar_capacity"
                     value=""
-                    placeholder="${capacity_str}" />
-
+                    placeholder="${capacityText}" />
+                <br /><br />
                 <input type="checkbox"
+                    class="swal2-checkbox"
                     id="booking-calendar_is_active"
+                    style="width: 2em;"
                     checked />
-                <span>${is_active_str}</span>
+                <span>${isActiveText}</span>
             </div>
         `,
 
@@ -1138,6 +1195,9 @@ async function addRoomPopUp() {
         }
     });
 
+    if (!formValues) {
+        return;
+    }
     const [room_no, name, capacity, is_active, isValid] = formValues;
     if (isValid) { 
         // generate
@@ -1148,8 +1208,8 @@ async function addRoomPopUp() {
     }
     else {
         Swal.fire({
-            title: 'Hiba!',
-            text: 'Minden mezőt töltsön ki!',
+            title: errorText,
+            text: allFieldsText,
             icon: 'error'
         });
     }

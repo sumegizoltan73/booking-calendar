@@ -252,6 +252,18 @@ function booking_calendar_admin_assets($hook) {
         true
     );
 
+    wp_set_script_translations(
+        'booking-calendar-admin',
+        'booking-calendar',
+        plugin_dir_path( __FILE__ ) . '../languages'
+    );
+
+    wp_set_script_translations(
+        'booking-calendar-booking',
+        'booking-calendar',
+        plugin_dir_path( __FILE__ ) . '../languages'
+    );
+
     wp_localize_script(
         'booking-calendar-admin',
         'hotelBooking',
@@ -259,7 +271,8 @@ function booking_calendar_admin_assets($hook) {
             'nonce' => wp_create_nonce('wp_rest'),
             'restUrl' => rest_url(
                 'booking-calendar/v1/'
-            )
+            ),
+            'locale' => substr(determine_locale(), 0, 2)
         ]
     );
     
@@ -270,7 +283,8 @@ function booking_calendar_admin_assets($hook) {
             'nonce' => wp_create_nonce('wp_rest'),
             'restUrl' => rest_url(
                 'booking-calendar/v1/'
-            )
+            ),
+            'locale' => substr(determine_locale(), 0, 2)
         ]
     );
 }

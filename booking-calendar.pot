@@ -144,15 +144,7 @@ msgstr "Info"
 
 #: admin.js:12
 msgid "Plus Notes"
-msgstr "+M"
-
-#: admin.js:12
-msgid "Notes"
-msgstr "Megjegyzések"
-
-#: admin.js:12
-msgid "Delete"
-msgstr "Törlés"
+msgstr "M"
 
 #: admin.js:12
 msgid "Monograph"
@@ -197,3 +189,35 @@ msgstr "Hiba a foglalás törlése közben"
 #: admin.js:12
 msgid "Save"
 msgstr "Mentés"
+
+#: admin.js:3
+msgid "One Day"
+msgstr "24 óra"
+
+#: admin.js:3
+msgid "Created At"
+msgstr "Létrehozva"
+
+#: admin.js:3
+msgid "Created By"
+msgstr "Létrehozta"
+
+#: admin.js:3
+msgid "Author"
+msgstr "Szerző"
+
+#: admin.js:3
+msgid "Type of Note"
+msgstr "Megjegyzés típusa"
+
+#: admin.js:3
+msgid "Visibility"
+msgstr "Láthatóság"
+
+#: admin.js:3
+msgid "No Results Found"
+msgstr "Nincs találat"
+
+#: admin.php:102
+msgid "Adding Room"
+msgstr "Szoba hozzáadása"
