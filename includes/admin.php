@@ -220,14 +220,14 @@ function booking_calendar_admin_assets($hook) {
         'booking_calendar_admin-style',
         plugin_dir_url(__FILE__) . '../assets/css/admin.css?nocache=' . date("Ymd_His"),
         [],
-        '0.1.8'
+        '1.0'
     );
 
     wp_enqueue_style(
         'booking_calendar-style',
         plugin_dir_url(__FILE__) . '../assets/css/style.css?nocache=' . date("Ymd_His"),
         [],
-        '0.1.8'
+        '1.0'
     );
 
     wp_enqueue_script(

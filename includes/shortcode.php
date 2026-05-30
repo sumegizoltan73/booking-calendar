@@ -76,26 +76,34 @@ function booking_calendar_enqueue_assets() {
         '3.1'
     );
 
+
     wp_enqueue_script(
-        'agent-calendar-js',
-        plugin_dir_url(__FILE__) . '../assets/js/calendar.js?nocache=' . date("Ymd_His"),
-        ['fullcalendar'],
+        'booking-calendar-admin',
+        plugin_dir_url(__FILE__) . '../assets/js/admin.js?nocache=' . date("Ymd_His"),
+        array( 'wp-i18n', 'fullcalendar', 'jquery' ),
         filemtime(
             plugin_dir_path(__FILE__) .
-            '../assets/js/calendar.js'
+            '../assets/js/admin.js'
         ),
         true
     );
 
     wp_enqueue_script(
-        'booking-calendar-js',
+        'booking-calendar-booking-js',
         plugin_dir_url(__FILE__) . '../assets/js/booking.js?nocache=' . date("Ymd_His"),
-        ['agent-calendar-js'],
+        array( 'wp-i18n', 'booking-calendar-js' ),
         filemtime(
             plugin_dir_path(__FILE__) .
             '../assets/js/booking.js'
         ),
         true
+    );
+
+    wp_enqueue_style(
+        'booking_calendar_admin-style',
+        plugin_dir_url(__FILE__) . '../assets/css/admin.css?nocache=' . date("Ymd_His"),
+        [],
+        '1.0'
     );
 
     wp_enqueue_style(
@@ -106,7 +114,7 @@ function booking_calendar_enqueue_assets() {
     );
 
     wp_localize_script(
-        'booking-calendar-js',
+        'booking-calendar-admin',
         'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),
@@ -115,8 +123,9 @@ function booking_calendar_enqueue_assets() {
             )
         ]
     );
+    
     wp_localize_script(
-        'agent-calendar-js',
+        'booking-calendar-booking',
         'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),

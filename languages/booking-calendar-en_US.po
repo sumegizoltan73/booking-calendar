@@ -104,3 +104,32 @@ msgstr "Required Start Date"
 #: booking.js:17
 msgid "Reserved rooms"
 msgstr "Reserved rooms"
+
+#: booking.js:19
+msgid "Error"
+msgstr "Error"
+
+#: booking.js:19
+msgid "Fill all fields"
+msgstr "Fill all fields"
+
+#: booking.js:19
+msgid "Invalid email"
+msgstr "Invalid email" 
+
+#: admin.js:3
+msgid "Slot details"
+msgstr "Slot details" 
+
+#: admin.js:3
+msgid "BOOKING"
+msgstr "BOOKING"
+
+#: admin.js:3
+msgid "BLOCK"
+msgstr "BLOCK"
+
+#: admin.js:3
+msgid "FREE"
+msgstr "FREE"
+

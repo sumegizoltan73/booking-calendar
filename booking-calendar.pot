@@ -105,3 +105,31 @@ msgstr "Kötelező kezdő dátum"
 #: booking.js:17
 msgid "Reserved rooms"
 msgstr "Foglalt szobák"
+
+#: booking.js:19
+msgid "Error"
+msgstr "Hiba!" 
+
+#: booking.js:19
+msgid "Fill all fields"
+msgstr "Minden mezőt töltsön ki!"
+
+#: booking.js:19
+msgid "Invalid email"
+msgstr "Érvénytelen email cím!" 
+
+#: admin.js:3
+msgid "Slot details"
+msgstr "Slot részletei" 
+
+#: admin.js:3
+msgid "BOOKING"
+msgstr "FOGLALÁS"
+
+#: admin.js:3
+msgid "BLOCK"
+msgstr "BLOCK"
+
+#: admin.js:3
+msgid "FREE"
+msgstr "FREE"

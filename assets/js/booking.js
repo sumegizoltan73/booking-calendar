@@ -19,6 +19,8 @@ async function bookingBookingCalendarSlot(id, startDate) {
     const notesText = __('Notes', 'booking-calendar');
     const requiredStartText = __('Required Start Date', 'booking-calendar');
     const reservedRoomsText = __('Reserved rooms', 'booking-calendar');
+    const errorText = __('Error', 'booking-calendar');
+    const fillAllText = __('Fill all fields', 'booking-calendar');
 
 
 
@@ -164,8 +166,8 @@ async function bookingBookingCalendarSlot(id, startDate) {
         }
         else {
             Swal.fire({
-                title: 'Hiba!',
-                text: 'Minden mezőt töltsön ki!',
+                title: errorText,
+                text: fillAllText,
                 icon: 'error'
             });
         }

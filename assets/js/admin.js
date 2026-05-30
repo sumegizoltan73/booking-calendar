@@ -1,5 +1,11 @@
-
 document.addEventListener('DOMContentLoaded', function() {
+        const { __, _x, _n, sprintf } = wp.i18n;
+
+        const slotDetailsText = __('Slot details', 'booking-calendar');
+        const bookingText = __('BOOKING', 'booking-calendar');
+        const blockText = __('BLOCK', 'booking-calendar');
+        const freeText = __('FREE', 'booking-calendar');
+
         var calendarEl = document.getElementById('booking-calendar-admin-calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridWeek',
@@ -104,14 +110,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (info.event.extendedProps.status !== 'BLOCKED') {
                     booking_button = `
                         <span style="margin-left: 20px;">&nbsp;</span>
-                        <button class="button" onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id}, '${info.event.start.toLocaleString()}')">FOGLALÁS</button>
+                        <button class="button" onclick="bookingBookingCalendarSlot(${info.event.extendedProps.slot_id}, '${info.event.start.toLocaleString()}')">${bookingText}</button>
                     `;
                 }
                 buttons = `
                     <p>
-                        <button class="button" onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">BLOCK</button>
+                        <button class="button" onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'BLOCKED')">${blockText}</button>
                         <span style="margin-left: 20px;">&nbsp;</span>
-                        <button class="button" onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">FREE</button>
+                        <button class="button" onclick="updateBookingCalendarSlot(${info.event.extendedProps.slot_id}, 'FREE')">${freeText}</button>
                         ${booking_button}
                     </p>
                 `;
@@ -127,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const slotEnd = info.event.extendedProps.days > 1 ? ' - ' + info.event.extendedProps.end.toLocaleString().replace(' 00:00:00', '').replace(' 23:59:00', '').replaceAll('-', '. ') + '.' : '';
                 Swal.fire({
 
-                    title: 'Slot részletek',
+                    title: slotDetailsText,
 
                     html: `
                         <p>
