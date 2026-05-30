@@ -142,7 +142,7 @@ msgid "Info"
 msgstr "Info"
 
 #: admin.js:12
-msgid "plusNote"
+msgid "Plus Notes"
 msgstr "+M"
 
 #: admin.js:12

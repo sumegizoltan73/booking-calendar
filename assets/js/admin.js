@@ -10,10 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const phoneText = __('Phone', 'booking-calendar');
         const roomsText = __('Rooms', 'booking-calendar');
         const infoText = __('Info', 'booking-calendar');
-        const plusNoteText = __('plusNote', 'booking-calendar');
+        const plusNotesText = __('Plus Notes', 'booking-calendar');
         const notesText = __('Notes', 'booking-calendar');
         const deleteText = __('Delete', 'booking-calendar');
         const monographText = __('Monograph', 'booking-calendar');
+        const stateText = __('State', 'booking-calendar');
 
         var calendarEl = document.getElementById('booking-calendar-admin-calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <th>${phoneText}</th>
                                     <th style="width: 33%;">${roomsText}</th>
                                     <th>${infoText}</th>
-                                    <th>${plusNoteText}</th>
+                                    <th>${plusNotesText}</th>
                                     <th>${deleteText}</th>
                                 </tr>
                             </thead>
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
                                         data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
                                     ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
-                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">${plusNoteText}</button>` : ''}</td>
+                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">${plusNotesText}</button>` : ''}</td>
                                     <td>${canManageBookingActions ? `<button type="button" onclick="deleteBookingCalendarBooking(${field.extendedProps.booking_id})">${deleteText}</button>` : ''}</td>
                                 </tr>`;
                     }).join('') + '</tbody></table>';
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </p>
                         ${renderBookingCalendarSlotNoteForm(info.event.extendedProps.slot_id)}
                         <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
-                            Status:
+                            ${stateText}:
                             ${info.event.extendedProps.status}
                         </p>
                         ${slot_notes_html}

@@ -142,8 +142,8 @@ msgid "Info"
 msgstr "Info"
 
 #: admin.js:12
-msgid "plusNote"
-msgstr "+Note"
+msgid "Plus Notes"
+msgstr "+Notes"
 
 #: admin.js:12
 msgid "Monograph"
