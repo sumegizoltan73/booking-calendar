@@ -88,6 +88,40 @@ function booking_calendar_register_routes() {
         ]
     );
 
+    register_rest_route(
+        'booking-calendar/v1',
+        '/add-booking-note',
+        [
+            'methods'  => 'POST',
+
+            'callback' => 'booking_calendar_add_booking_note',
+
+            'permission_callback' => function () {
+
+                return current_user_can(
+                    'manage_options'
+                );
+            }
+        ]
+    );
+
+    register_rest_route(
+        'booking-calendar/v1',
+        '/delete-booking',
+        [
+            'methods'  => 'POST',
+
+            'callback' => 'booking_calendar_delete_booking',
+
+            'permission_callback' => function () {
+
+                return current_user_can(
+                    'manage_options'
+                );
+            }
+        ]
+    );
+
      register_rest_route(
         'booking-calendar/v1',
         '/calendar-slot-notes',

@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 let buttons = "";
                 let bookings_html = "";
                 if (info.event.extendedProps.status === 'BOOKED' || info.event.extendedProps.in_blocked_status === 'BOOKED') {
+                    
+                    const canManageBookingActions = info.event.extendedProps.status !== 'BLOCKED'
+                        || info.event.extendedProps.in_blocked_status === 'BOOKED';
                     const bookings = await getBookingCalendarBookings(info.event.extendedProps.slot_id);
                     bookings_html = `
                         <h3>Foglalások adatai</h3>
@@ -42,6 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <th>Telefonszám</th>
                                     <th style="width: 33%;">Szobák</th>
                                     <th>Info</th>
+                                    <th>+M</th>
+                                    <th>Törlés</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -56,6 +61,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                         data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
                                         data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
                                     ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
+                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">+M</button>` : ''}</td>
+                                    <td>${canManageBookingActions ? `<button type="button" onclick="deleteBookingCalendarBooking(${field.extendedProps.booking_id})">Törlés</button>` : ''}</td>
                                 </tr>`;
                     }).join('') + '</tbody></table>';
 
@@ -342,6 +349,91 @@ async function getBookingCalendarDayBookings(date, exclude_slot_id) {
 
     const data = await response.json();
     return data;
+}
+
+async function addBookingCalendarNote(booking_id) {
+    const { value: note } = await Swal.fire({
+        title: 'Megjegyzés hozzáadása',
+        input: 'textarea',
+        inputPlaceholder: 'Megjegyzés',
+        showCancelButton: true,
+        allowEscapeKey: true,
+        inputValidator: (value) => value ? null : 'A megjegyzés mező kötelező.'
+    });
+
+    if (!note) {
+        return;
+    }
+
+    const response = await fetch(
+        hotelBooking.restUrl + 'add-booking-note',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': hotelBooking.nonce
+            },
+            body: JSON.stringify({
+                booking_id,
+                note
+            })
+        }
+    );
+    const data = await response.json();
+
+    if (!data.success) {
+        Swal.fire({
+            title: 'Hiba!',
+            text: data.message || 'A megjegyzés hozzáadása sikertelen.',
+            icon: 'error'
+        });
+        return;
+    }
+
+    bookingCalendarTooltipCache.clear();
+    window.hotelBookingCalendar.refetchEvents();
+    document.querySelector("button.swal2-confirm")?.click();
+}
+
+async function deleteBookingCalendarBooking(booking_id) {
+    const result = await Swal.fire({
+        title: 'Biztosan törölni szeretné a foglalást?',
+        icon: 'question',
+        showCancelButton: true,
+        allowEscapeKey: true
+    });
+
+    if (!result.isConfirmed) {
+        return;
+    }
+
+    const response = await fetch(
+        hotelBooking.restUrl + 'delete-booking',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': hotelBooking.nonce
+            },
+            body: JSON.stringify({
+                booking_id
+            })
+        }
+    );
+    const data = await response.json();
+
+    if (!data.success) {
+        Swal.fire({
+            title: 'Hiba!',
+            text: data.message || 'A foglalás törlése sikertelen.',
+            icon: 'error'
+        });
+        return;
+    }
+
+    bookingCalendarTooltipCache.clear();
+    window.hotelBookingCalendar.refetchEvents();
+    document.querySelector("button.swal2-confirm")?.click();
 }
 
 function getBookingCalendarDateString(date) {

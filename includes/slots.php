@@ -684,6 +684,156 @@ function booking_calendar_slot_notes(
     return $notes;
 }
 
+function booking_calendar_add_booking_note(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    $table_slots =
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
+    $table_bookings =
+        $wpdb->prefix . 'hotel_booking_bookings';
+    $table_notes =
+        $wpdb->prefix . 'hotel_booking_notes';
+    $params =
+        $request->get_json_params();
+
+    $booking_id = intval($params['booking_id']);
+    $note = sanitize_textarea_field($params['note']);
+
+    if (!$booking_id || $note === '') {
+        return [
+            'success' => false,
+            'message' => 'Hiányzó foglalás vagy megjegyzés.'
+        ];
+    }
+
+    $booking = $wpdb->get_row(
+        $wpdb->prepare(
+            "
+            SELECT b.id, s.status as slot_status
+            FROM {$table_bookings} b
+            JOIN {$table_slots} s
+                ON b.slot_id = s.id
+            WHERE b.id = %d
+            ",
+            $booking_id
+        )
+    );
+
+    if (!$booking) {
+        return [
+            'success' => false,
+            'message' => 'A foglalás nem található.'
+        ];
+    }
+
+    $current_user = wp_get_current_user();
+    $author_user_id = $current_user ? intval($current_user->ID) : null;
+
+    $result = $wpdb->insert(
+        $table_notes,
+        [
+            'booking_id' => $booking_id,
+            'author_user_id' => $author_user_id,
+            'note_type' => 'AGENT',
+            'visibility' => 'AGENT',
+            'note' => $note,
+            'created_at' => current_time('mysql', true)
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s'
+        ]
+    );
+
+    return [
+        'success' => $result !== false,
+        'message' => $result !== false ? 'Megjegyzés hozzáadva.' : 'A megjegyzés hozzáadása sikertelen.'
+    ];
+}
+
+function booking_calendar_delete_booking(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    $table_slots =
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
+    $table_bookings =
+        $wpdb->prefix . 'hotel_booking_bookings';
+    $table_notes =
+        $wpdb->prefix . 'hotel_booking_notes';
+    $table_mappings =
+        $wpdb->prefix . 'hotel_booking_calendar_booking_rooms';
+    $params =
+        $request->get_json_params();
+
+    $booking_id = intval($params['booking_id']);
+
+    if (!$booking_id) {
+        return [
+            'success' => false,
+            'message' => 'Hiányzó foglalás.'
+        ];
+    }
+
+    $booking = $wpdb->get_row(
+        $wpdb->prepare(
+            "
+            SELECT b.id, s.status as slot_status
+            FROM {$table_bookings} b
+            JOIN {$table_slots} s
+                ON b.slot_id = s.id
+            WHERE b.id = %d
+            ",
+            $booking_id
+        )
+    );
+
+    if (!$booking) {
+        return [
+            'success' => false,
+            'message' => 'A foglalás nem található.'
+        ];
+    }
+
+    $wpdb->delete(
+        $table_mappings,
+        [
+            'booking_id' => $booking_id
+        ],
+        [
+            '%d'
+        ]
+    );
+    $wpdb->delete(
+        $table_notes,
+        [
+            'booking_id' => $booking_id
+        ],
+        [
+            '%d'
+        ]
+    );
+    $result = $wpdb->delete(
+        $table_bookings,
+        [
+            'id' => $booking_id
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    return [
+        'success' => $result !== false,
+        'message' => $result !== false ? 'Foglalás törölve.' : 'A foglalás törlése sikertelen.'
+    ];
+}
+
 function booking_calendar_slot_bookings(
     WP_REST_Request $request
 ) {
