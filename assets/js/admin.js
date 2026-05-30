@@ -5,6 +5,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const bookingText = __('BOOKING', 'booking-calendar');
         const blockText = __('BLOCK', 'booking-calendar');
         const freeText = __('FREE', 'booking-calendar');
+        const bookingDetailsText = __('Booking details', 'booking-calendar');
+        const nameText = __('Name', 'booking-calendar');
+        const phoneText = __('Phone', 'booking-calendar');
+        const roomsText = __('Rooms', 'booking-calendar');
+        const infoText = __('Info', 'booking-calendar');
+        const plusNoteText = __('plusNote', 'booking-calendar');
+        const notesText = __('Notes', 'booking-calendar');
+        const deleteText = __('Delete', 'booking-calendar');
+        const monographText = __('Monograph', 'booking-calendar');
 
         var calendarEl = document.getElementById('booking-calendar-admin-calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -51,16 +60,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         || info.event.extendedProps.in_blocked_status === 'BOOKED';
                     const bookings = await getBookingCalendarBookings(info.event.extendedProps.slot_id);
                     bookings_html = `
-                        <h3>Foglalások adatai</h3>
+                        <h3>${bookingDetailsText}</h3>
                         <table class="booking-calendar-details">
                             <thead>
                                 <tr>
-                                    <th>Név</th>
-                                    <th>Telefonszám</th>
-                                    <th style="width: 33%;">Szobák</th>
-                                    <th>Info</th>
-                                    <th>+M</th>
-                                    <th>Törlés</th>
+                                    <th>${nameText}</th>
+                                    <th>${phoneText}</th>
+                                    <th style="width: 33%;">${roomsText}</th>
+                                    <th>${infoText}</th>
+                                    <th>${plusNoteText}</th>
+                                    <th>${deleteText}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -75,20 +84,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                         data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
                                         data-created_by="${escapeBookingCalendarHtml(field.extendedProps.created_by)}"
                                     ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
-                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">+M</button>` : ''}</td>
-                                    <td>${canManageBookingActions ? `<button type="button" onclick="deleteBookingCalendarBooking(${field.extendedProps.booking_id})">Törlés</button>` : ''}</td>
+                                    <td>${canManageBookingActions ? `<button type="button" onclick="addBookingCalendarNote(${field.extendedProps.booking_id})">${plusNoteText}</button>` : ''}</td>
+                                    <td>${canManageBookingActions ? `<button type="button" onclick="deleteBookingCalendarBooking(${field.extendedProps.booking_id})">${deleteText}</button>` : ''}</td>
                                 </tr>`;
                     }).join('') + '</tbody></table>';
 
                     const bookednotes = await getBookingCalendarNotes(info.event.extendedProps.slot_id);
                     bookednote = `
-                        <h3>Megjegyzések</h3>
+                        <h3>${notesText}</h3>
                         <table class="booking-calendar-notes">
                             <thead>
                                 <tr>
-                                    <th>Monogram</th>
-                                    <th style="width: 73%;">Megjegyzés</th>
-                                    <th>Info</th>
+                                    <th>${monographText}</th>
+                                    <th style="width: 73%;">${notesText}</th>
+                                    <th>${infoText}</th>
                                 </tr>
                             </thead>
                             <tbody>

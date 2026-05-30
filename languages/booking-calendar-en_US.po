@@ -133,3 +133,18 @@ msgstr "BLOCK"
 msgid "FREE"
 msgstr "FREE"
 
+# : admin.js:8
+msgid "Booking details"
+msgstr "Booking details"
+
+#: admin.js:12
+msgid "Info"
+msgstr "Info"
+
+#: admin.js:12
+msgid "plusNote"
+msgstr "+Note"
+
+#: admin.js:12
+msgid "Monograph"
+msgstr "Monograph"

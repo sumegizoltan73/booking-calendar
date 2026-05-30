@@ -133,3 +133,27 @@ msgstr "BLOCK"
 #: admin.js:3
 msgid "FREE"
 msgstr "FREE"
+
+# : admin.js:8
+msgid "Booking details"
+msgstr "Foglalás részletei"
+
+#: admin.js:12
+msgid "Info"
+msgstr "Info"
+
+#: admin.js:12
+msgid "plusNote"
+msgstr "+M"
+
+#: admin.js:12
+msgid "Notes"
+msgstr "Megjegyzések"
+
+#: admin.js:12
+msgid "Delete"
+msgstr "Törlés"
+
+#: admin.js:12
+msgid "Monograph"
+msgstr "Monogram"
