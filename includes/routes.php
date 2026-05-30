@@ -107,6 +107,23 @@ function booking_calendar_register_routes() {
 
     register_rest_route(
         'booking-calendar/v1',
+        '/add-calendar-slot-note',
+        [
+            'methods'  => 'POST',
+
+            'callback' => 'booking_calendar_add_slot_note',
+
+            'permission_callback' => function () {
+
+                return current_user_can(
+                    'manage_options'
+                );
+            }
+        ]
+    );
+
+    register_rest_route(
+        'booking-calendar/v1',
         '/delete-booking',
         [
             'methods'  => 'POST',

@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p>
                             ${info.event.start.toLocaleString().replace(' 0:00:00', '')}${slotEnd}
                         </p>
+                        ${renderBookingCalendarSlotNoteForm(info.event.extendedProps.slot_id)}
                         <p class="${info.event.extendedProps.status}" style="color: ${getBookingCalendarSlotColor(info.event.extendedProps.status)};">
                             Status:
                             ${info.event.extendedProps.status}
@@ -210,28 +211,41 @@ async function getBookingCalendarEventTooltipDetails(event) {
         || event.extendedProps.in_blocked_status === 'BOOKED';
 
     if (!hasBookingDetails) {
+        if (!bookingCalendarTooltipCache.has(slotId)) {
+            bookingCalendarTooltipCache.set(slotId, Promise.all([
+                Promise.resolve([]),
+                Promise.resolve([]),
+                getBookingCalendarSlotNotes(slotId)
+            ]));
+        }
+
+        const [bookings, notes, slotNotes] = await bookingCalendarTooltipCache.get(slotId);
+
         return {
             title: event.title,
             status: event.extendedProps.status,
-            bookings: [],
-            notes: []
+            bookings,
+            notes,
+            slotNotes
         };
     }
 
     if (!bookingCalendarTooltipCache.has(slotId)) {
         bookingCalendarTooltipCache.set(slotId, Promise.all([
             getBookingCalendarBookings(slotId),
-            getBookingCalendarNotes(slotId)
+            getBookingCalendarNotes(slotId),
+            getBookingCalendarSlotNotes(slotId)
         ]));
     }
 
-    const [bookings, notes] = await bookingCalendarTooltipCache.get(slotId);
+    const [bookings, notes, slotNotes] = await bookingCalendarTooltipCache.get(slotId);
 
     return {
         title: event.title,
         status: event.extendedProps.status,
         bookings,
-        notes
+        notes,
+        slotNotes
     };
 }
 
@@ -288,6 +302,32 @@ function renderBookingCalendarEventTooltip(details) {
         list.style.padding = '0';
 
         notes.forEach((note) => {
+            const item = document.createElement('li');
+            item.textContent = note;
+            item.style.borderBottom = '1px solid rgba(255,255,255,0.25)';
+            item.style.padding = '4px 0';
+            list.appendChild(item);
+        });
+
+        tooltip.appendChild(list);
+    }
+
+    const slotNotes = details.slotNotes
+        .map((note) => note.author_monogram + ' - ' + note.extendedProps.note)
+        .filter(Boolean);
+
+    if (slotNotes.length) {
+        const label = document.createElement('div');
+        label.textContent = 'Slot notes:';
+        label.style.fontWeight = '700';
+        label.style.marginTop = '4px';
+        tooltip.appendChild(label);
+
+        const list = document.createElement('ul');
+        list.style.margin = '2px 0 0 16px';
+        list.style.padding = '0';
+
+        slotNotes.forEach((note) => {
             const item = document.createElement('li');
             item.textContent = note;
             item.style.borderBottom = '1px solid rgba(255,255,255,0.25)';
@@ -387,6 +427,53 @@ async function addBookingCalendarNote(booking_id) {
             },
             body: JSON.stringify({
                 booking_id,
+                note
+            })
+        }
+    );
+    const data = await response.json();
+
+    if (!data.success) {
+        Swal.fire({
+            title: 'Hiba!',
+            text: data.message || 'A megjegyzés hozzáadása sikertelen.',
+            icon: 'error'
+        });
+        return;
+    }
+
+    bookingCalendarTooltipCache.clear();
+    window.hotelBookingCalendar.refetchEvents();
+    document.querySelector("button.swal2-confirm")?.click();
+}
+
+function toggleBookingCalendarSlotNoteForm(slot_id) {
+    const form = document.getElementById('booking-calendar-slot-note-form-' + slot_id);
+
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+async function saveBookingCalendarSlotNote(slot_id) {
+    const textarea = document.getElementById('booking-calendar-slot-note-' + slot_id);
+    const note = textarea ? textarea.value.trim() : '';
+
+    if (!note) {
+        Swal.showValidationMessage('A megjegyzés mező kötelező.');
+        return;
+    }
+
+    const response = await fetch(
+        hotelBooking.restUrl + 'add-calendar-slot-note',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': hotelBooking.nonce
+            },
+            body: JSON.stringify({
+                slot_id,
                 note
             })
         }
@@ -507,7 +594,7 @@ function renderBookingCalendarSlotNotes(notes) {
     ` + notes.map((field) => {
         return `<tr>
                     <td>${escapeBookingCalendarHtml(field.author_monogram)}</td>
-                    <td>${escapeBookingCalendarHtml(field.extendedProps.note)}</td>
+                    <td style="color: red;">${escapeBookingCalendarHtml(field.extendedProps.note)}</td>
                     <td
                         data-created_at="${escapeBookingCalendarHtml(field.created_at)}"
                         data-author_name="${escapeBookingCalendarHtml(field.extendedProps.author_name)}"
@@ -516,6 +603,20 @@ function renderBookingCalendarSlotNotes(notes) {
                     ><button type="button" onclick="toggleBookingCalendarBookingDetails(this)"> i </button></td>
                 </tr>`;
     }).join('') + '</tbody></table>';
+}
+
+function renderBookingCalendarSlotNoteForm(slot_id) {
+    return `
+        <p>
+            <button class="button" type="button" onclick="toggleBookingCalendarSlotNoteForm(${slot_id})">+Megjegyzés</button>
+        </p>
+        <div id="booking-calendar-slot-note-form-${slot_id}" style="display:none; margin-bottom: 12px;">
+            <textarea id="booking-calendar-slot-note-${slot_id}" rows="3" style="width:100%; box-sizing:border-box;" placeholder="Megjegyzés"></textarea>
+            <p>
+                <button class="button button-primary" type="button" onclick="saveBookingCalendarSlotNote(${slot_id})">Mentés</button>
+            </p>
+        </div>
+    `;
 }
 
 async function generateBookingCalendarSlots() {

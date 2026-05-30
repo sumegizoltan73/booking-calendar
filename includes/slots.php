@@ -821,6 +821,74 @@ function booking_calendar_add_booking_note(
     ];
 }
 
+function booking_calendar_add_slot_note(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+    $table_slots =
+        $wpdb->prefix . 'hotel_booking_calendar_slots';
+    $table_notes =
+        $wpdb->prefix . 'hotel_booking_slot_notes';
+    $params =
+        $request->get_json_params();
+
+    $slot_id = intval($params['slot_id']);
+    $note = sanitize_textarea_field($params['note']);
+
+    if (!$slot_id || $note === '') {
+        return [
+            'success' => false,
+            'message' => 'Hiányzó slot vagy megjegyzés.'
+        ];
+    }
+
+    $slot = $wpdb->get_var(
+        $wpdb->prepare(
+            "
+            SELECT id
+            FROM {$table_slots}
+            WHERE id = %d
+            ",
+            $slot_id
+        )
+    );
+
+    if (!$slot) {
+        return [
+            'success' => false,
+            'message' => 'A slot nem található.'
+        ];
+    }
+
+    $current_user = wp_get_current_user();
+    $author_user_id = $current_user ? intval($current_user->ID) : null;
+
+    $result = $wpdb->insert(
+        $table_notes,
+        [
+            'slot_id' => $slot_id,
+            'author_user_id' => $author_user_id,
+            'note_type' => 'INTERNAL',
+            'visibility' => 'AGENT',
+            'note' => $note,
+            'created_at' => current_time('mysql', true)
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s'
+        ]
+    );
+
+    return [
+        'success' => $result !== false,
+        'message' => $result !== false ? 'Megjegyzés hozzáadva.' : 'A megjegyzés hozzáadása sikertelen.'
+    ];
+}
+
 function booking_calendar_delete_booking(
     WP_REST_Request $request
 ) {
