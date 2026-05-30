@@ -60,7 +60,7 @@ function booking_calendar_settings_init() {
  */
 function booking_calendar_plugin_load_textdomain() {
     load_plugin_textdomain(
-        'booking_calendar',
+        'booking-calendar',
         false,
         dirname( plugin_basename( __FILE__ ) ) . '/languages'
     );

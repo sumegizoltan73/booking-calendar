@@ -76,15 +76,15 @@ function booking_calendar_admin_page() {
                 }
             ?>
         </h2>
-        <h2>Szobák</h2>
+        <h2><?php _e( 'Rooms', 'booking-calendar' ); ?></h2>
         <table>
             <thead>
                 <tr>
-                    <th>Szobaszám</th>
-                    <th>Szoba név</th>
-                    <th>Kapacitás</th>
-                    <th>Foglalhatóság</th>
-                    <th>Törlés</th>
+                    <th><?php _e( 'Room Number', 'booking-calendar' ); ?></th>
+                    <th><?php _e( 'Room Name', 'booking-calendar' ); ?></th>
+                    <th><?php _e( 'Capacity', 'booking-calendar' ); ?></th>
+                    <th><?php _e( 'Availability', 'booking-calendar' ); ?></th>
+                    <th><?php _e( 'Delete', 'booking-calendar' ); ?></th>
                 </tr>
             </thead>
             <tbody id="booking-calendar-rooms-repeater">
@@ -93,7 +93,7 @@ function booking_calendar_admin_page() {
                         <td><?php echo $item['room_no'] ; ?></td>
                         <td><?php echo $item['room_name'] ; ?></td>
                         <td class="center"><?php echo $item['capacity'] ; ?></td>
-                        <td><?php echo intval($item['is_active']) == 1  ? 'AKTÍV' : 'INAKTÍV'; ?></td>
+                        <td><?php echo intval($item['is_active']) == 1  ? _e( 'Active', 'booking-calendar' ) : _e( 'Inactive', 'booking-calendar' ); ?></td>
                         <td><button type="button" class="button remove-item" onclick="removeRoom(event, <?php echo $item['id'] ; ?>)">–</button></td>
                     </tr>
                 <?php endforeach; ?>
@@ -101,20 +101,20 @@ function booking_calendar_admin_page() {
             
         </table>
 
-        <button type="button" class="button" id="add-item" onclick="addRoomPopUp()">+ Hozzáad</button>
+        <button type="button" class="button" id="add-item" onclick="addRoomPopUp()">+ <?php _e( 'Add Room', 'booking-calendar' ); ?></button>
         <br /><br />
 
 
-        <h2>Kalendár</h2>
+        <h2><?php _e( 'Admin Calendar', 'booking-calendar' ); ?></h2>
         <button id="generate-slots" class="button" onclick="generateBookingCalendarSlots()">
-            Slotok generálása
+            <?php _e( 'Generate Slots', 'booking-calendar' ); ?>
         </button>
 
         <select id="room-id" onchange="refreshBookingCalendarCalendar()">
             <option
                 value="0"
             >
-                Minden szoba
+                <?php _e( 'All Rooms', 'booking-calendar' ); ?>
             </option>
             <?php foreach ($items as $room): ?>
 
@@ -132,7 +132,7 @@ function booking_calendar_admin_page() {
         </select>
 
         <button id="generate-unique-slots" class="button" onclick="generateUniqueBookingCalendarSlotsPopUp()">
-            Egyedi Slotok generálása
+            <?php _e( 'Generate Unique Slots', 'booking-calendar' ); ?>
         </button>
 
         <span class="booking-calendar-search">
@@ -140,7 +140,7 @@ function booking_calendar_admin_page() {
             <input
                 type="search"
                 id="booking-calendar-booking-search"
-                placeholder="Keresés név, telefon, megjegyzés alapján"
+                placeholder="<?php _e( 'Search by name, phone, or note', 'booking-calendar' ); ?>"
                 oninput="updateBookingCalendarSearch()"
             />
             <button
@@ -149,7 +149,7 @@ function booking_calendar_admin_page() {
                 id="booking-calendar-search-results-button"
                 onclick="showBookingCalendarSearchResults()"
             >
-                Találatok (0 db)
+                <?php _e( 'Search Results', 'booking-calendar' ); ?> (0 db)
             </button>
         </span>
 

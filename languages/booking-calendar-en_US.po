@@ -1,0 +1,74 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Hotel Booking Calendar Plugin\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-30 18:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Zoltan Sumegi <sumegizoltan73@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: booking-calendar"
+
+#: admin.php:79
+msgid "Rooms"
+msgstr "Rooms"
+
+#: admin.php:82
+msgid "Room Number"
+msgstr "Room Number"
+
+#: admin.php:83
+msgid "Room Name"
+msgstr "Room Name"
+
+#: admin.php:84
+msgid "Capacity"
+msgstr "Capacity"
+
+#: admin.php:85
+msgid "Availability"
+msgstr "Availability"
+
+#: admin.php:86
+msgid "Delete"
+msgstr "Delete"
+
+#: admin.php:94
+msgid "Active"
+msgstr "Active"
+
+#: admin.php:94
+msgid "Inactive"
+msgstr "Inactive"
+
+#: admin.php:102
+msgid "Add Room"
+msgstr "Add Room"
+
+#: admin.php:106
+msgid "Admin Calendar"
+msgstr "Admin Calendar"
+
+#: admin.php:107
+msgid "Generate Slots"
+msgstr "Generate Slots"
+
+#: admin.php:115
+msgid "All Rooms"
+msgstr "All Rooms"
+
+#: admin.php:133
+msgid "Generate Unique Slots"
+msgstr "Generate Unique Slots"
+
+#: admin.php:141
+msgid "Search by name, phone, or note"
+msgstr "Search by name, phone, or note"
+
+#: admin.php:150
+msgid "Search Results"
+msgstr "Search Results"
