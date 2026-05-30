@@ -17,3 +17,18 @@ Notes and bookings can be deleted, and separate notes can also be added to a slo
 I (Zoltan Peter Sumegi) am the development team, with artificial intelligence also involved in the development process. With the help of ChatGPT and the Codex coding agent, a significant part of the programming work is carried out by an AI system. I created and designed the foundations of the plugin with some AI assistance, consulting with ChatGPT, and I continue to develop the plugin with Codex, increasingly relying on it as well. Some development solutions produced by the AI system may be inappropriate because of imprecise task descriptions, but thanks to GitHub-based version control, these can be corrected easily. Overall, a very significant part of the development is based on ChatGPT and Codex.
 
 The pace of development is extremely fast, so most of the functionality was completed within days. There were cases where a change I made, such as introducing multiple slots within a single day and slots spanning multiple days, disrupted the entire UI and overall behavior. Fortunately, Codex understood the task and efficiently completed the changes needed to restore correct operation.
+
+## Internationalization
+The plugin will be multilingual. Basic POT and MO files will provide the text that is currently hard-coded, so all labels will be displayed according to the language environment selected in WordPress.
+
+## License
+The program is licensed under the MIT License and may be freely used, distributed, integrated, and modified. The license text is included with the code in the LICENCE file.
+
+## Github repository
+[sumegizoltan73 - Booking Calendar](https://github.com/sumegizoltan73/booking-calendar)
+
+## Third-party code
+The plugin uses third-party solutions, especially the following:
+- [FullCalendar](https://fullcalendar.io)
+- [SweetAllert2](https://sweetalert2.github.io)
+- [Date Range Picker](https://www.daterangepicker.com)
