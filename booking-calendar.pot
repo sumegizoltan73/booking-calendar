@@ -73,3 +73,35 @@ msgstr "Keresés név, telefon, megjegyzés alapján"
 #: admin.php:150
 msgid "Search Results"
 msgstr "Találatok"
+
+#: booking.js:11
+msgid "Select a Room Number"
+msgstr "Jelöljön ki szobaszámot foglaláshoz. Több szobát is megjelölhet."
+
+#: booking.js:13
+msgid "Booking Room"
+msgstr "Szoba foglalás"
+
+#: booking.js:13
+msgid "Name"
+msgstr "Név"
+
+#: booking.js:13
+msgid "Email"
+msgstr "Email"
+
+#: booking.js:13
+msgid "Phone"
+msgstr "Telefonszám"
+
+#: booking.js:13
+msgid "Notes"
+msgstr "Megjegyzés"
+
+#: booking.js:17
+msgid "Required Start Date"
+msgstr "Kötelező kezdő dátum"
+
+#: booking.js:17
+msgid "Reserved rooms"
+msgstr "Foglalt szobák"

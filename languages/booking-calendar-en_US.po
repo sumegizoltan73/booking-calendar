@@ -72,3 +72,35 @@ msgstr "Search by name, phone, or note"
 #: admin.php:150
 msgid "Search Results"
 msgstr "Search Results"
+
+#: booking.js:11
+msgid "Select a Room Number"
+msgstr "Select a Room Number"
+
+#: booking.js:13
+msgid "Booking Room"
+msgstr "Booking Room"
+
+#: booking.js:13
+msgid "Name"
+msgstr "Name"
+
+#: booking.js:13
+msgid "Email"
+msgstr "Email"
+
+#: booking.js:13
+msgid "Phone"
+msgstr "Phone"
+
+#: booking.js:13
+msgid "Notes"
+msgstr "Notes"
+
+#: booking.js:17
+msgid "Required Start Date"
+msgstr "Required Start Date"
+
+#: booking.js:17
+msgid "Reserved rooms"
+msgstr "Reserved rooms"

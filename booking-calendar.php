@@ -3,14 +3,14 @@
  * Plugin Name:       Booking Calendar Plugin
  * Plugin URI:        https://github.com/sumegizoltan73/booking-calendar
  * Description:       Hotel booking calendar - WordPress plugin.
- * Version:           0.9.8
+ * Version:           0.9.28
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Zoltan Peter Sumegi & ChatGPT
  * Author URI:        https://www.sumegizoltanpeter.hu/
  * License:           MIT
  * License URI:       https://mit-license.org
- * Update URI:        https://programozo.info.hu/booking-calendar/
+ * Update URI:        https://github.com/sumegizoltan73/booking-calendar
  * Text Domain:       booking-calendar
  * Domain Path:       languages
  * Requires Plugins:  

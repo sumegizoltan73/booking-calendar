@@ -233,7 +233,7 @@ function booking_calendar_admin_assets($hook) {
     wp_enqueue_script(
         'booking-calendar-admin',
         plugin_dir_url(__FILE__) . '../assets/js/admin.js?nocache=' . date("Ymd_His"),
-        ['booking_calendar_fullcalendar'],
+        array( 'wp-i18n', 'booking_calendar_fullcalendar', 'jquery' ),
         filemtime(
             plugin_dir_path(__FILE__) .
             '../assets/js/admin.js'
@@ -244,7 +244,7 @@ function booking_calendar_admin_assets($hook) {
     wp_enqueue_script(
         'booking-calendar-booking',
         plugin_dir_url(__FILE__) . '../assets/js/booking.js?nocache=' . date("Ymd_His"),
-        ['booking_calendar_fullcalendar'],
+        array( 'wp-i18n', 'booking_calendar_fullcalendar', 'jquery' ),
         filemtime(
             plugin_dir_path(__FILE__) .
             '../assets/js/booking.js'

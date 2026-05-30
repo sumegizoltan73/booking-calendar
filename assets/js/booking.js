@@ -9,6 +9,19 @@ async function bookingCalendaerGetRooms(slot_id) {
 }
 
 async function bookingBookingCalendarSlot(id, startDate) {
+    const { __, _x, _n, sprintf } = wp.i18n;
+
+    const selectnumberText = __('Select a Room Number', 'booking-calendar');
+    const bookingRoomText = __('Booking Room', 'booking-calendar');
+    const nameText = __('Name', 'booking-calendar');
+    const emailText = __('Email', 'booking-calendar');
+    const phoneText = __('Phone', 'booking-calendar');
+    const notesText = __('Notes', 'booking-calendar');
+    const requiredStartText = __('Required Start Date', 'booking-calendar');
+    const reservedRoomsText = __('Reserved rooms', 'booking-calendar');
+
+
+
     const rooms = await bookingCalendaerGetRooms(id);
     let rooms_html = "";
     if (rooms) {
@@ -26,12 +39,12 @@ async function bookingBookingCalendarSlot(id, startDate) {
         }).join('') + '</div>';
         rooms_html += `
             <input type="hidden" id="booking-calendar-selected" value="" /> 
-            <div class="booking-calendar-info">Jelöljön ki szobaszámot foglaláshoz. Több szobát is megjelölhet.</div>
+            <div class="booking-calendar-info">${selectnumberText}</div>
         `;
     }
     const { value: formValues } = await Swal.fire({
 
-        title: 'Szoba foglalás',
+        title: bookingRoomText,
 
         html: `
             ${rooms_html}
@@ -45,24 +58,25 @@ async function bookingBookingCalendarSlot(id, startDate) {
             <input
                 id="bookings-name"
                 type="text"
-                placeholder="Név"
+                placeholder="${nameText}"
                 class="swal2-input"
             />
             <input
                 id="bookings-email"
-                placeholder="Email"
+                placeholder="${emailText}"
                 type="email"
                 class="swal2-input"
             />
 
             <input
                 id="bookings-phone"
-                placeholder="Telefonszám"
+                placeholder="${phoneText}"
                 type="text"
                 class="swal2-input"
             />
             <br />
-            <span style="font-weight: bold; font-size: 1.1em;">Megjegyzés:</span>
+            <span style="font-weight: bold; font-size: 1.1em;">${notesText}:</span>
+            <br />
             <textarea
                 id="bookings-notes"
                 class="swal2-input"
@@ -112,7 +126,7 @@ async function bookingBookingCalendarSlot(id, startDate) {
                 if (selected_startdate === required_startdate) {
                     jQuery('#booking-calendar-range-error').html('&nbsp;');}
                 else { 
-                    jQuery('#booking-calendar-range-error').html('A Slot kezdete kötelezően: ' + required_startdate);
+                    jQuery('#booking-calendar-range-error').html(requiredStartText + required_startdate);
                 }
             });
             jQuery('.booking-calendar-FREE').on('click', function () {
@@ -125,10 +139,10 @@ async function bookingBookingCalendarSlot(id, startDate) {
                 });
                 document.getElementById('booking-calendar-selected').value = selected_room_ids.join(',');
                 if (selected_rooms.length < 1) {
-                    jQuery('.booking-calendar-info').html('Jelöljön ki szobaszámot foglaláshoz. Több szobát is megjelölhet.');
+                    jQuery('.booking-calendar-info').html(selectnumberText);
                 }
                 else {
-                    jQuery('.booking-calendar-info').html('Foglalt szobák: ' + selected_rooms.join(','));
+                    jQuery('.booking-calendar-info').html(reservedRoomsText + selected_rooms.join(','));
                 }
             });
         }
