@@ -11,16 +11,16 @@ async function bookingCalendaerGetRooms(slot_id) {
 async function bookingBookingCalendarSlot(id, startDate) {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const selectnumberText = __('Select a Room Number', 'booking-calendar');
-    const bookingRoomText = __('Booking Room', 'booking-calendar');
+    const selectnumberText = __('select-a-room-number', 'booking-calendar');
+    const bookingRoomText = __('booking-room', 'booking-calendar');
     const nameText = __('Name', 'booking-calendar');
     const emailText = __('Email', 'booking-calendar');
     const phoneText = __('Phone', 'booking-calendar');
     const notesText = __('Notes', 'booking-calendar');
-    const requiredStartText = __('Required Start Date', 'booking-calendar');
-    const reservedRoomsText = __('Reserved rooms', 'booking-calendar');
+    const requiredStartText = __('required-start-date', 'booking-calendar');
+    const reservedRoomsText = __('reserved-rooms', 'booking-calendar');
     const errorText = __('Error', 'booking-calendar');
-    const fillAllText = __('Fill all fields', 'booking-calendar');
+    const fillAllText = __('fill-all-fields', 'booking-calendar');
 
 
 

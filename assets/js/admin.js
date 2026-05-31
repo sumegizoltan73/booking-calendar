@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
         const { __, _x, _n, sprintf } = wp.i18n;
 
-        const slotDetailsText = __('Slot details', 'booking-calendar');
+        const slotDetailsText = __('slot-details', 'booking-calendar');
         const bookingText = __('BOOKING', 'booking-calendar');
         const blockText = __('BLOCK', 'booking-calendar');
         const freeText = __('FREE', 'booking-calendar');
-        const bookingDetailsText = __('Booking details', 'booking-calendar');
+        const bookingDetailsText = __('booking-details', 'booking-calendar');
         const nameText = __('Name', 'booking-calendar');
         const phoneText = __('Phone', 'booking-calendar');
         const roomsText = __('Rooms', 'booking-calendar');
@@ -286,7 +286,7 @@ function renderBookingCalendarEventTooltip(details) {
     const customerText = __('Customer', 'booking-calendar');
     const phoneText = __('Phone', 'booking-calendar');
     const notesText = __('Notes', 'booking-calendar');
-    const slotNotesText = __('Slot notes', 'booking-calendar');
+    const slotNotesText = __('slot-notes', 'booking-calendar');
 
     const tooltip = document.createElement('div');
     tooltip.className = 'booking-calendar-event-tooltip';
@@ -444,10 +444,10 @@ async function getBookingCalendarDayBookings(date, exclude_slot_id) {
 async function addBookingCalendarNote(booking_id) {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const addNoteText = __('Add Note', 'booking-calendar');
+    const addNoteText = __('add-note', 'booking-calendar');
     const notesText = __('Notes', 'booking-calendar');
-    const noteRequiredText = __('The Note field is required', 'booking-calendar');
-    const noteSuccessText = __('Note is added successfully', 'booking-calendar');
+    const noteRequiredText = __('the-note-field-is-required', 'booking-calendar');
+    const noteSuccessText = __('note-is-added-successfully', 'booking-calendar');
     const errorText = __('Error', 'booking-calendar');
 
     const { value: note } = await Swal.fire({
@@ -506,8 +506,8 @@ async function saveBookingCalendarSlotNote(slot_id) {
     const note = textarea ? textarea.value.trim() : '';
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const noteRequiredText = __('The Note field is required', 'booking-calendar');
-    const noteSuccessText = __('Note is added successfully', 'booking-calendar');
+    const noteRequiredText = __('the-Note-field-is-required', 'booking-calendar');
+    const noteSuccessText = __('note-is-added-successfully', 'booking-calendar');
     const errorText = __('Error', 'booking-calendar');
 
     if (!note) {
@@ -548,8 +548,8 @@ async function saveBookingCalendarSlotNote(slot_id) {
 async function deleteBookingCalendarBooking(booking_id) {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const questionText = __('Really delete this booking?', 'booking-calendar');
-    const noteSuccessText = __('Note is added successfully', 'booking-calendar');
+    const questionText = __('really-delete-this-booking', 'booking-calendar');
+    const noteSuccessText = __('note-is-added-successfully', 'booking-calendar');
     const errorText = __('Error', 'booking-calendar');
 
     const result = await Swal.fire({
@@ -607,7 +607,7 @@ function renderBookingCalendarDayBookings(bookings) {
 
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const otherBookingsText = __('Other bookings on this day', 'booking-calendar');
+    const otherBookingsText = __('other-bookings-on-this-day', 'booking-calendar');
     const nameText = __('Name', 'booking-calendar');
     const phoneText = __('Phone', 'booking-calendar');
     const roomsText = __('Rooms', 'booking-calendar');
@@ -647,7 +647,7 @@ function renderBookingCalendarSlotNotes(notes) {
 
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const slotNotesText = __('Slot notes', 'booking-calendar');
+    const slotNotesText = __('slot-notes', 'booking-calendar');
     const infoText = __('Info', 'booking-calendar');
     const monographText = __('Monograph', 'booking-calendar');
 
@@ -745,10 +745,10 @@ async function generateUniqueBookingCalendarSlotsPopUp() {
     const room_select_html = document.getElementById('room-id').innerHTML;
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const generateSlotsText = __('Generate Slots', 'booking-calendar');
-    const oneDayText = __('One Day', 'booking-calendar');
+    const generateSlotsText = __('generate-unique-slots', 'booking-calendar');
+    const oneDayText = __('one-day', 'booking-calendar');
     const errorText = __('Error', 'booking-calendar');
-    const fillText = __('Fill all fields', 'booking-calendar');
+    const fillText = __('fill-all-fields', 'booking-calendar');
 
     const { value: formValues } = await Swal.fire({
 
@@ -874,11 +874,11 @@ function toggleBookingCalendarBookingDetails(button) {
 
     const monographeText = __('Monographe', 'booking-calendar');
     const emailText = __('Email', 'booking-calendar');
-    const createdText = __('Created At', 'booking-calendar');
-    const createdByText = __('Created By', 'booking-calendar');
+    const createdText = __('created-at', 'booking-calendar');
+    const createdByText = __('created-by', 'booking-calendar');
     const authorText = __('Author', 'booking-calendar');
-    const customerNameText = __('Customer Name', 'booking-calendar');
-    const noteTypeText = __('Type of Note', 'booking-calendar');
+    const customerNameText = __('Customer', 'booking-calendar');
+    const noteTypeText = __('type-of-note', 'booking-calendar');
     const visibilityText = __('Visibility', 'booking-calendar');
 
     const labels = {
@@ -941,7 +941,7 @@ async function refreshBookingCalendarSearch() {
     const requestId = ++bookingCalendarSearchRequest;
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const searchResultsText = __('Search results', 'booking-calendar');
+    const searchResultsText = __('search-results', 'booking-calendar');
     
     bookingCalendarTooltipCache.clear();
     window.hotelBookingCalendar.refetchEvents();
@@ -978,7 +978,7 @@ async function refreshBookingCalendarSearch() {
 function showBookingCalendarSearchResults() {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const searchResultsText = __('Search results', 'booking-calendar');
+    const searchResultsText = __('search-results', 'booking-calendar');
 
     Swal.fire({
         title: searchResultsText + ' (' + bookingCalendarSearchResults.length + ' db)',
@@ -992,7 +992,7 @@ function renderBookingCalendarSearchResultsModal() {
     const container = document.getElementById('booking-calendar-search-results-modal');
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const searchResultsText = __('Search results', 'booking-calendar');
+    const searchResultsText = __('search-results', 'booking-calendar');
 
     if (!container) {
         return;
@@ -1008,11 +1008,11 @@ function renderBookingCalendarSearchResultsModal() {
 function getBookingCalendarSearchResultsHtml() {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const noResultsFoundText = __('No Results Found', 'booking-calendar');
-    const roomNumberText = __('Room Number', 'booking-calendar');
+    const noResultsFoundText = __('no-results-found', 'booking-calendar');
+    const roomNumberText = __('room-number', 'booking-calendar');
     const customerNameText = __('Customer', 'booking-calendar');
     const customerPhoneText = __('Phone', 'booking-calendar');
-    const notesText = __('Notes', 'booking-calendar');
+    const notesText = __('notes', 'booking-calendar');
 
     if (!getBookingCalendarSearchTerm() || !bookingCalendarSearchResults.length) {
         return '<p class="booking-calendar-search-no-results">' + noResultsFoundText + '</p>';
@@ -1064,7 +1064,7 @@ async function removeConfirmedRoom(e, id) {
 async function removeRoom(e, id) {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const questionText = __('Really delete this room?', 'booking-calendar');
+    const questionText = __('really-delete-this-room', 'booking-calendar');
 
     Swal.fire({
         title: questionText,
@@ -1134,13 +1134,13 @@ async function addRoom(room_no,
 async function addRoomPopUp() {
     const { __, _x, _n, sprintf } = wp.i18n;
 
-    const roomNumberText = __('Room Number', 'booking-calendar');
-    const roomNameText = __('Room Name', 'booking-calendar');
+    const roomNumberText = __('room-number', 'booking-calendar');
+    const roomNameText = __('room-name', 'booking-calendar');
     const capacityText = __('Capacity', 'booking-calendar');
     const isActiveText = __('Active', 'booking-calendar');
     const errorText = __('Error', 'booking-calendar');
-    const allFieldsText = __('Fill all fields', 'booking-calendar');
-    const addText = __('Adding Room', 'booking-calendar');
+    const allFieldsText = __('fill-all-fields', 'booking-calendar');
+    const addText = __('adding-room', 'booking-calendar');
 
     const { value: formValues } = await Swal.fire({
 

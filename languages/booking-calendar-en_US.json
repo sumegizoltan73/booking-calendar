@@ -50,5 +50,7 @@
     "type-of-note": ["Type of Note"],
     "Visibility": ["Visibility"],
     "no-results-found": ["No Results Found"],
-    "adding-room": ["Adding Room"]
+    "adding-room": ["Adding Room"],
+    "really-delete-this-room": ["Really delete this room?"],
+    "other-bookings-on-this-day": ["Other bookings on this day"]
 }

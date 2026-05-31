@@ -50,5 +50,7 @@
     "type-of-note": ["Megjegyzés típusa"],
     "Visibility": ["Láthatóság"],
     "no-results-found": ["Nincs találat"],
-    "adding-room": ["Szoba hozzáadása"]
+    "adding-room": ["Szoba hozzáadása"],
+    "really-delete-this-room": ["Biztosan törölni szeretné a szobát?"],
+    "other-bookings-on-this-day": ["További foglalások ezen a napon"]
 }
