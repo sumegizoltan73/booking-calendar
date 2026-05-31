@@ -1,0 +1,3 @@
+# Improvements
+- HU: Múltbeli foglalások között is keresés, és megjelenítés eltérő, halványabb színekkel. A múltbéli eseményeknél is Slot részletek megjelenítése, de BLOCK / FREE / BOOKING nyomógomb nélkül, és megjegyzés hozzáadása nélkül, fenntartva a törlés lehetőségét azokra a foglalásokra is.
+- EN: Search and display past bookings with different, lighter colors. Display Slot details for past events, but without BLOCK / FREE / BOOKING buttons and without adding comments, retaining the option to cancel those bookings as well.
