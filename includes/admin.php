@@ -233,7 +233,7 @@ function booking_calendar_admin_assets($hook) {
     );
 
     wp_enqueue_script(
-        'booking-calendar-admin',
+        'admin',
         plugin_dir_url( $plugin_file ) . 'assets/js/admin.js',
         array( 'wp-i18n', 'booking_calendar_fullcalendar', 'booking_calendar_fullcalendar-locales', 'jquery' ),
         filemtime( dirname( __DIR__ ) . '/assets/js/admin.js' ),
@@ -241,7 +241,7 @@ function booking_calendar_admin_assets($hook) {
     );
 
     wp_enqueue_script(
-        'booking-calendar-booking',
+        'booking',
         plugin_dir_url( $plugin_file ) . 'assets/js/booking.js',
         array( 'wp-i18n', 'booking_calendar_fullcalendar', 'jquery' ),
         filemtime( dirname( __DIR__ ) . '/assets/js/booking.js' ),
@@ -249,19 +249,19 @@ function booking_calendar_admin_assets($hook) {
     );
 
     wp_set_script_translations(
-        'booking-calendar-admin',
+        'admin',
         'booking-calendar',
-        plugin_dir_path( __FILE__ ) . '../languages'
+        plugin_dir_url( $plugin_file )  . 'languages'
     );
 
     wp_set_script_translations(
-        'booking-calendar-booking',
+        'booking',
         'booking-calendar',
-        plugin_dir_path( __FILE__ ) . '../languages'
+        plugin_dir_url( $plugin_file )  . 'languages'
     );
 
     wp_localize_script(
-        'booking-calendar-admin',
+        'admin',
         'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),
@@ -273,7 +273,7 @@ function booking_calendar_admin_assets($hook) {
     );
     
     wp_localize_script(
-        'booking-calendar-booking',
+        'booking',
         'hotelBooking',
         [
             'nonce' => wp_create_nonce('wp_rest'),
@@ -283,4 +283,14 @@ function booking_calendar_admin_assets($hook) {
             'locale' => substr(determine_locale(), 0, 2)
         ]
     );
+
+    
 }
+
+add_filter( 'pre_load_script_translations', function( $translations, $file, $handle, $domain ) {
+    if ( $domain === 'booking-calendar' ) {
+        // Ez kiírja a PHP hibanaplóba (wp-content/debug.log), hogy pontosan milyen fájlnevet vár a WP
+        error_log( "WP ezt a fájlt keresi: " . $file );
+    }
+    return $translations;
+}, 10, 4 );
