@@ -24,6 +24,9 @@ The plugin translated to two languages, Hungarian and English. The Calendar cont
 ## Releases
 Version 1.0.0 was released 2026-05-31.
 
+## Screenshots
+[On the author's blog](https://www.programozo.info.hu/the-hotel-booking-calendar-is-ready/)
+
 ## License
 The program is licensed under the MIT License and may be freely used, distributed, integrated, and modified. The license text is included with the code in the LICENCE file.
 
