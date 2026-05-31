@@ -19,7 +19,10 @@ I (Zoltan Peter Sumegi) am the development team, with artificial intelligence al
 The pace of development is extremely fast, so most of the functionality was completed within days. There were cases where a change I made, such as introducing multiple slots within a single day and slots spanning multiple days, disrupted the entire UI and overall behavior. Fortunately, Codex understood the task and efficiently completed the changes needed to restore correct operation.
 
 ## Internationalization
-The plugin will be multilingual. Basic POT and MO files will provide the text that is currently hard-coded, so all labels will be displayed according to the language environment selected in WordPress.
+The plugin translated to two languages, Hungarian and English. The Calendar control is also multi language.
+
+## Releases
+Version 1.0.0 was released 2026-05-31.
 
 ## License
 The program is licensed under the MIT License and may be freely used, distributed, integrated, and modified. The license text is included with the code in the LICENCE file.
