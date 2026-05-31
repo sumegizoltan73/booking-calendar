@@ -140,7 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const notes = await getBookingCalendarSlotNotes(info.event.extendedProps.slot_id);
                 const slot_notes_html = renderBookingCalendarSlotNotes(notes);
-                const slotEnd = info.event.extendedProps.days > 1 ? ' - ' + info.event.extendedProps.end.toLocaleString().replace(' 00:00:00', '').replace(' 23:59:00', '').replaceAll('-', '. ') + '.' : '';
+                const displayedEnd = new Date(info.event.end.setDate(info.event.end.getDate() - 1));
+                let slotEnd = info.event.extendedProps.days > 1 ? ' - ' + displayedEnd.toLocaleString().replace(' 0:00:00', '').replace(' 00:00:00', '').replace(' 23:59:00', '').replaceAll('-', '. ') + '.' : '';
+                slotEnd = slotEnd.replace('..', '.');
                 Swal.fire({
 
                     title: slotDetailsText,
